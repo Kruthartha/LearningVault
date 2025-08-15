@@ -7,6 +7,7 @@ const NavLink = ({ href, text }) => (
   </a>
 );
 
+
 const NavBar = ({ name = "Knowledge Vault" }) => {
   const [scrolled, setScrolled] = useState(false);
 
@@ -34,15 +35,26 @@ const NavBar = ({ name = "Knowledge Vault" }) => {
         >
           {name}
         </a>
-        <nav className="space-x-8 text-gray-600 hidden md:flex text-sm font-medium">
-          <NavLink href="/" text="Home" />
-          <NavLink href="/about" text="Developer Session" />
-          <NavLink href="/contact" text="About" />
-        </nav>
-        {/* <Button size="small" >Login</Button> */}
+        <div className="flex items-center space-x-8">
+          <nav className="space-x-8 text-gray-600 hidden md:flex text-sm font-medium">
+            <NavLink href="/" text="Home" />
+            <NavLink href="/about" text="Developer Session" />
+            <NavLink href="/contact" text="About" />
+          </nav>
+          <Button 
+            size="small" 
+            normalColor="bg-slate-800" 
+            hoverColor="bg-slate-900"
+            onClick={() => alert('Login clicked')}
+          >
+            Login
+          </Button>
+        </div>
       </div>
     </header>
   );
 };
+
+
 
 export default NavBar;
