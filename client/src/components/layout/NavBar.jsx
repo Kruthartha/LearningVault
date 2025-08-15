@@ -45,7 +45,7 @@ const NavBar = () => {
             size="small" 
             normalColor="bg-slate-800" 
             hoverColor="bg-slate-900"
-            onClick={() => alert('Login clicked')}
+            href={"/login"}
           >
             Login
           </Button>

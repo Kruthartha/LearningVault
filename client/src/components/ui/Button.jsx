@@ -3,6 +3,7 @@ import { useState } from "react";
 const Button = ({
   children,
   onClick,
+  href, // <-- Added support for links
   normalColor = "bg-blue-500",
   hoverColor = "bg-blue-600",
   textColor = "text-white",
@@ -37,14 +38,26 @@ const Button = ({
     .trim()
     .replace(/\s+/g, " ");
 
+  const commonProps = {
+    className: buttonClasses,
+    onMouseEnter: () => setIsHovered(true),
+    onMouseLeave: () => setIsHovered(false),
+    ...props,
+  };
+
+  if (href && !disabled) {
+    return (
+      <a href={href} {...commonProps}>
+        {children}
+      </a>
+    );
+  }
+
   return (
     <button
-      className={buttonClasses}
       onClick={disabled ? undefined : onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       disabled={disabled}
-      {...props}
+      {...commonProps}
     >
       {children}
     </button>
