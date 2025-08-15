@@ -1,7 +1,7 @@
 import NavBar from "../components/layout/NavBar";
 import HomeSection from "../components/sections/HomeSection";
 
-function Home() {
+function HomePage() {
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
       <NavBar />
@@ -10,4 +10,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default HomePage;
