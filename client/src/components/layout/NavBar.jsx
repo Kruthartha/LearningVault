@@ -8,7 +8,7 @@ const NavLink = ({ href, text }) => (
 );
 
 
-const NavBar = ({ name = "Knowledge Vault" }) => {
+const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -31,9 +31,9 @@ const NavBar = ({ name = "Knowledge Vault" }) => {
       <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
         <a
           href="#home"
-          className="text-xl font-semibold tracking-wide hover:text-gray-700 transition"
+          className="text-xl font-semilight tracking-wide hover:text-gray-700 transition"
         >
-          {name}
+          Knowledge<span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">Vault</span>
         </a>
         <div className="flex items-center space-x-8">
           <nav className="space-x-8 text-gray-600 hidden md:flex text-sm font-medium">

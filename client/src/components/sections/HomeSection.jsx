@@ -57,19 +57,12 @@ const HomeSection = () => {
           <div className="flex flex-col md:flex-row gap-6 justify-center items-center mb-20">
             <Button
               variant="primary"
-              size="large"
+              size="medium"
+              normalColor="bg-slate-800"
               className="min-w-[200px]"
               onClick={() => alert("Get started")}
             >
               Get started
-            </Button>
-            <Button
-              variant="secondary"
-              size="large"
-              className="min-w-[200px]"
-              onClick={() => alert("Watch demo")}
-            >
-              Watch demo
             </Button>
           </div>
 
@@ -139,13 +132,13 @@ const HomeSection = () => {
               },
               {
                 phase: "03",
-                title: "Career Launch",
+                title: "Launch Your Next Chapter",
                 description:
-                  "Guaranteed placement support with our income-share model. Pay only after you get hired.",
+                  "Use your new skills to start a career, build a startup, freelance, or simply bring your ideas to life — the choice is yours.",
                 features: [
-                  "Job guarantee program",
-                  "1-on-1 career coaching",
-                  "Direct company partnerships",
+                  "Mentorship from industry experts",
+                  "Startup & freelancing guidance",
+                  "Paths to jobs, clients, or projects",
                 ],
               },
             ].map((item, index) => (
@@ -243,9 +236,9 @@ const HomeSection = () => {
           <div className="grid md:grid-cols-3 gap-12">
             {[
               {
-                title: "Job Guarantee",
+                title: "Project-First Approach",
                 description:
-                  "Your success is our success. Pay only after you land your dream job with our income-share model.",
+                  "Every lesson ends with something you can use — from simple apps to full-scale platforms.",
                 icon: "",
               },
               {
@@ -286,7 +279,7 @@ const HomeSection = () => {
         <div className="relative max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-4xl sm:text-6xl md:text-7xl font-light text-black mb-8 leading-tight tracking-tight">
             Your future won’t{" "}
-            <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="font-semibold bg-gradient-to-r  from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent">
               build itself
             </span>
             .
@@ -300,11 +293,12 @@ const HomeSection = () => {
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button
               variant="primary"
-              size="large"
+              size="medium"
+              normalColor="bg-slate-800"
               className="min-w-[200px]"
               onClick={() => alert("Get started")}
             >
-              Get Started
+              Get started
             </Button>
           </div>
 
