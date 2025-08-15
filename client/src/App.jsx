@@ -1,13 +1,19 @@
 import React from "react";
-import NavBar from "./components/layout/NavBar";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import Home from "./pages/home";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
-    <>
-      <div className="min-h-screen bg-white text-gray-900 font-sans antialiased">
-        <NavBar />
-      </div>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />          {/* Home page */}
+        <Route path="/about" element={<Home />} />    {/* About page */}
+        <Route path="/dashboard" element={<Home />} /> {/* Dashboard */}
+        <Route path="*" element={<NotFound />} />     {/* 404 Page */}
+      </Routes>
+    </Router>
   );
 }
 
