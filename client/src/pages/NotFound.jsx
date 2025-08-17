@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const NotFoundPage = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -20,11 +21,11 @@ const NotFoundPage = () => {
   }, []);
 
   const goHome = () => {
-    alert("Redirecting to homepage...");
+    navigate("/");
   };
 
   const goBack = () => {
-    alert("Going back...");
+    navigate(-1);
   };
 
   return (
