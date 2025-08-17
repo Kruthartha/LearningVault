@@ -15,7 +15,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen">
       {/* Left branding section */}
       <div className="hidden lg:flex w-1/2 bg-slate-900 text-white items-center justify-center flex-col p-12">
-        <h1 className="text-4xl font-bold mb-4">Welcome Back to Knowledge Vault</h1>
+        <h1 className="text-4xl font-bold mb-4">Welcome Back to Learning Vault</h1>
         <p className="text-lg opacity-80 text-center max-w-md">
           Learn. Build. Prove your skills. Launch your career with real-world experience.
         </p>

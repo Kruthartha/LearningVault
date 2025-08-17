@@ -31,7 +31,7 @@ const HomeSection = () => {
 
           {/* Main Headline */}
           <h1 className="text-7xl md:text-9xl font-extralight text-black mb-6 tracking-tighter leading-none">
-            Knowledge
+            Learning
             <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
               Vault
             </span>
@@ -188,9 +188,9 @@ const HomeSection = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-16 text-center">
             <div className="group">
               <div className="text-6xl md:text-7xl font-ultralight mb-4 group-hover:text-blue-400 transition-colors">
-                95%
+                1500+
               </div>
-              <div className="text-gray-400 font-light">Placement rate</div>
+              <div className="text-gray-400 font-light">Community Members</div>
             </div>
             <div className="group">
               <div className="text-6xl md:text-7xl font-ultralight mb-4 group-hover:text-purple-400 transition-colors">
@@ -316,7 +316,7 @@ const HomeSection = () => {
             {/* Brand Info */}
             <div>
               <h3 className="text-2xl font-light text-white mb-4">
-                Knowledge
+                Learning
                 <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
                   Vault
                 </span>
@@ -407,7 +407,7 @@ const HomeSection = () => {
           {/* Divider */}
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
             <p>
-              © {new Date().getFullYear()} Knowledge Vault. All rights reserved.
+              © {new Date().getFullYear()} LearningVault. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="hover:text-white">

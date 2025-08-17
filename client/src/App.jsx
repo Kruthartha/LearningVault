@@ -11,10 +11,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} /> {/* Home page */}
-        <Route path="/about" element={<HomePage />} /> {/* About page */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={<HomePage />} /> {/* Dashboard */}
         <Route path="*" element={<NotFound />} /> {/* 404 Page */}
       </Routes>
     </Router>

@@ -7,7 +7,6 @@ const NavLink = ({ href, text }) => (
   </a>
 );
 
-
 const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
 
@@ -33,7 +32,10 @@ const NavBar = () => {
           href="#home"
           className="text-xl font-semilight tracking-wide hover:text-gray-700 transition"
         >
-          Knowledge<span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">Vault</span>
+          Learning
+          <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
+            Vault
+          </span>
         </a>
         <div className="flex items-center space-x-8">
           <nav className="space-x-8 text-gray-600 hidden md:flex text-sm font-medium">
@@ -41,9 +43,9 @@ const NavBar = () => {
             <NavLink href="/about" text="Developer Session" />
             <NavLink href="/contact" text="About" />
           </nav>
-          <Button 
-            size="small" 
-            normalColor="bg-slate-800" 
+          <Button
+            size="small"
+            normalColor="bg-slate-800"
             hoverColor="bg-slate-900"
             href={"/login"}
           >
@@ -54,7 +56,5 @@ const NavBar = () => {
     </header>
   );
 };
-
-
 
 export default NavBar;
