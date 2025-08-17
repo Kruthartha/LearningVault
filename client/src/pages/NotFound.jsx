@@ -1,123 +1,177 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
-function NotFound() {
-  const messages = [
-    "Oops! This page is floating in zero gravity.",
-    "Lost in space — can’t locate this page anywhere!",
-    "404: Even the aliens couldn’t find this page.",
-    "This page is light-years away from where you expected.",
-    "Drifting through the void… page not found.",
-    "404: This page was swallowed by a black hole.",
-    "You’ve reached the edge of the universe — no page here.",
-    "This page has warped into another dimension.",
-    "404: Signal lost in deep space.",
-    "Mission failed — this star system doesn’t exist.",
-  ];
+const NotFoundPage = () => {
+  const [scrollY, setScrollY] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  const [randomMessage, setRandomMessage] = useState("");
-  const [countdown, setCountdown] = useState(10);
-
-  // Generate static star positions (avoid glitch)
-  const [stars, setStars] = useState([]);
   useEffect(() => {
-    const generatedStars = Array.from({ length: 120 }).map(() => ({
-      width: Math.random() * 2 + 1,
-      height: Math.random() * 2 + 1,
-      top: Math.random() * 100,
-      left: Math.random() * 100,
-      opacity: Math.random() * 0.8 + 0.2,
-      yMovement: Math.random() * 10 - 5,
-      delay: Math.random() * 2,
-      duration: 2 + Math.random() * 3,
-    }));
-    setStars(generatedStars);
-
-    // Pick random message
-    setRandomMessage(messages[Math.floor(Math.random() * messages.length)]);
+    const handleScroll = () => setScrollY(window.scrollY);
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("mousemove", handleMouseMove);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
   }, []);
 
-  // Countdown + redirect
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => (prev > 1 ? prev - 1 : 0));
-    }, 1000);
+  const goHome = () => {
+    alert("Redirecting to homepage...");
+  };
 
-    if (countdown === 0) window.location.href = "/";
-
-    return () => clearInterval(timer);
-  }, [countdown]);
+  const goBack = () => {
+    alert("Going back...");
+  };
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-screen bg-black text-white overflow-hidden">
-      {/* Starfield */}
-      <div className="absolute inset-0">
-        {stars.map((star, i) => (
-          <motion.span
-            key={i}
-            className="absolute rounded-full bg-white"
-            style={{
-              width: `${star.width}px`,
-              height: `${star.height}px`,
-              top: `${star.top}%`,
-              left: `${star.left}%`,
-              opacity: star.opacity,
-            }}
-            animate={{
-              y: [0, star.yMovement, 0],
-              opacity: [0.3, 1, 0.3],
-            }}
-            transition={{
-              duration: star.duration,
-              repeat: Infinity,
-              delay: star.delay,
-            }}
-          />
-        ))}
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/30 to-white overflow-hidden relative">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Floating geometric shapes */}
+        <div 
+          className="absolute w-2 h-2 bg-blue-500 rounded-full animate-pulse opacity-40"
+          style={{
+            top: '20%',
+            left: '15%',
+            transform: `translate(${mousePosition.x * 0.01}px, ${mousePosition.y * 0.01}px)`
+          }}
+        ></div>
+        <div 
+          className="absolute w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse opacity-30 delay-1000"
+          style={{
+            top: '30%',
+            right: '20%',
+            transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`
+          }}
+        ></div>
+        <div 
+          className="absolute w-1 h-1 bg-green-500 rounded-full animate-pulse opacity-50 delay-500"
+          style={{
+            bottom: '40%',
+            left: '10%',
+            transform: `translate(${mousePosition.x * 0.015}px, ${mousePosition.y * 0.015}px)`
+          }}
+        ></div>
+        <div 
+          className="absolute w-3 h-3 bg-yellow-500 rounded-full animate-pulse opacity-25 delay-700"
+          style={{
+            top: '60%',
+            right: '30%',
+            transform: `translate(${mousePosition.x * 0.008}px, ${mousePosition.y * 0.008}px)`
+          }}
+        ></div>
+
+        {/* Gradient blobs */}
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      {/* 404 Text */}
-      <motion.h1
-        className="text-[8rem] font-extrabold tracking-widest font-sans text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1 }}
-      >
-        404
-      </motion.h1>
+      {/* Main content */}
+      <div className="relative min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-4xl mx-auto text-center z-10">
+          {/* Status badge */}
 
-      {/* Random Message */}
-      <motion.p
-        className="text-xl text-gray-300 mt-2 text-center px-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-      >
-        {randomMessage}
-      </motion.p>
 
-      {/* Countdown */}
-      <motion.p
-        className="mt-6 text-gray-400 text-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-      >
-        Redirecting you to <Link to="/">Home</Link> in {countdown} seconds...
-      </motion.p>
+          {/* Large 404 display */}
+          <div className="mb-8 relative">
+            <h1 className="text-[12rem] md:text-[16rem] font-ultralight text-gray-100 leading-none tracking-tighter select-none">
+              404
+            </h1>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-6xl md:text-8xl font-extralight text-black tracking-tight">
+                Oops!
+              </div>
+            </div>
+          </div>
+          
 
-      {/* Footer Logo */}
-      <motion.footer
-        className="absolute bottom-24 md:bottom-6 flex justify-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.6 }}
-      >
-        
-      </motion.footer>
+          {/* Main message */}
+          <h2 className="text-4xl md:text-6xl font-extralight text-black mb-8 tracking-tight leading-tight">
+            This page took a
+            <br />
+            <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-light">
+              wrong turn
+            </span>
+          </h2>
+
+          
+
+          {/* Description */}
+          <p className="text-xl md:text-2xl text-gray-500 font-light mb-16 max-w-2xl mx-auto leading-relaxed">
+            The page you're looking for doesn't exist. But don't worry —
+            <br className="hidden md:block" />
+            your learning journey is still on track.
+          </p>
+
+          
+
+          {/* Action buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+            <button
+              onClick={goHome}
+              className="inline-flex items-center px-8 py-4 bg-slate-800 text-white font-medium rounded-xl hover:bg-slate-900 transition-all duration-300 hover:shadow-2xl hover:scale-105 min-w-[200px]"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+              </svg>
+              Go Home
+            </button>
+            
+            <button
+              onClick={goBack}
+              className="inline-flex items-center px-8 py-4 bg-white text-slate-800 font-medium rounded-xl border border-gray-200 hover:bg-gray-50 transition-all duration-300 hover:shadow-xl hover:scale-105 min-w-[200px]"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              Go Back
+            </button>
+          </div>
+
+          {/* Help text */}
+          <p className="text-sm text-gray-400 font-light">
+            Still lost? Try searching for what you need or{" "}
+            <button className="text-blue-600 hover:text-blue-700 underline font-medium">
+              contact our support team
+            </button>
+          </p>
+        </div>
+      </div>
+
+      {/* Minimalist quote section */}
+      <div className="relative py-32">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <blockquote className="text-3xl md:text-4xl font-extralight text-gray-600 leading-relaxed tracking-wide">
+            "Every expert was once a beginner.
+            <br className="hidden md:block" />
+            Every pro was once an amateur."
+          </blockquote>
+          <div className="mt-8 w-16 h-px bg-gradient-to-r from-blue-600 to-purple-600 mx-auto"></div>
+        </div>
+      </div>
+
+      {/* Brand footer */}
+      <div className="relative py-16">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="flex items-center justify-center mb-6">
+            <h4 className="text-3xl font-light text-black">
+              Learning
+              <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
+                Vault
+              </span>
+            </h4>
+          </div>
+          <p className="text-gray-400 text-sm">
+            Learn by building. Succeed by doing.
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-export default NotFound;
+export default NotFoundPage;
