@@ -385,17 +385,17 @@ const SignUpPage = () => {
                 </button>
 
                 {/* Divider */}
-                <div className="relative my-6">
+                {/* <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-200"></div>
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-white px-3 text-gray-500 font-medium">Or sign up with</span>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Social Sign Up */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
@@ -417,7 +417,7 @@ const SignUpPage = () => {
                     </svg>
                     <span className="ml-2 text-sm font-medium text-gray-700">Facebook</span>
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {/* Sign In Link */}
