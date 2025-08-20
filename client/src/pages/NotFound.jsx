@@ -33,48 +33,6 @@ const NotFoundPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50/30 to-white overflow-hidden relative">
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Floating geometric shapes */}
-        <div
-          className="absolute w-2 h-2 bg-blue-500 rounded-full animate-pulse opacity-40"
-          style={{
-            top: "20%",
-            left: "15%",
-            transform: `translate(${mousePosition.x * 0.01}px, ${
-              mousePosition.y * 0.01
-            }px)`,
-          }}
-        ></div>
-        <div
-          className="absolute w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse opacity-30 delay-1000"
-          style={{
-            top: "30%",
-            right: "20%",
-            transform: `translate(${mousePosition.x * 0.02}px, ${
-              mousePosition.y * 0.02
-            }px)`,
-          }}
-        ></div>
-        <div
-          className="absolute w-1 h-1 bg-green-500 rounded-full animate-pulse opacity-50 delay-500"
-          style={{
-            bottom: "40%",
-            left: "10%",
-            transform: `translate(${mousePosition.x * 0.015}px, ${
-              mousePosition.y * 0.015
-            }px)`,
-          }}
-        ></div>
-        <div
-          className="absolute w-3 h-3 bg-yellow-500 rounded-full animate-pulse opacity-25 delay-700"
-          style={{
-            top: "60%",
-            right: "30%",
-            transform: `translate(${mousePosition.x * 0.008}px, ${
-              mousePosition.y * 0.008
-            }px)`,
-          }}
-        ></div>
-
         {/* Gradient blobs */}
         <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
