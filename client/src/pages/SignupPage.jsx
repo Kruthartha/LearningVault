@@ -154,7 +154,7 @@ const SignUpPage = () => {
         </div>
 
         {/* Right Side - Sign Up Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12">
+        <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-1">
           <div className="w-full max-w-md">
             {/* Mobile Logo */}
             <div className="lg:hidden text-center mb-8">
