@@ -117,7 +117,7 @@ const SignUpPage = () => {
     
     try {
       // Replace with your actual OTP verification endpoint
-      const response = await fetch('/api/users/verify-otp', {
+      const response = await fetch('https://api.learningvault.in/api/users/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ const SignUpPage = () => {
     
     try {
       // Replace with your actual resend OTP endpoint
-      const response = await fetch('/api/users/resend-otp', {
+      const response = await fetch('https://api.learningvault.in/api/users/resend-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
