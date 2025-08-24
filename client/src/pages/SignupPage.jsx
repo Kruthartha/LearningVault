@@ -1,6 +1,9 @@
 import { useState } from "react";
 
 const SignUpPage = () => {
+
+  const API_BASE_URL = 'https://api.learningvault.in';
+
   const [currentStep, setCurrentStep] = useState("signup"); // "signup", "otp", or "success"
   const [formData, setFormData] = useState({
     firstName: "",
@@ -72,7 +75,6 @@ const SignUpPage = () => {
     setIsLoading(true);
     
     try {
-      const API_BASE_URL = 'https://api.learningvault.in';
       
       const response = await fetch(`${API_BASE_URL}/api/users/signup`, {
         method: 'POST',
