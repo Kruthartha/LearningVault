@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const SignUpPage = () => {
-  const [currentStep, setCurrentStep] = useState("signup"); // "signup" or "otp"
+  const [currentStep, setCurrentStep] = useState("signup"); // "signup", "otp", or "success"
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -59,52 +59,52 @@ const SignUpPage = () => {
   };
 
   const handleSignUpSubmit = async (e) => {
-  e.preventDefault();
-  if (!formData.agreeToTerms) {
-    alert("Please agree to the Terms of Service to continue.");
-    return;
-  }
-  if (formData.password !== formData.confirmPassword) {
-    alert("Passwords don't match. Please try again.");
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const response = await fetch('https://api.learningvault.in/api/users/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        termsAccepted: formData.agreeToTerms,
-        subscribeUpdates: formData.subscribeNewsletter
-      })
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      // Explicitly throw for HTTP errors
-      throw new Error(result.message || `HTTP error ${response.status}`);
+    e.preventDefault();
+    if (!formData.agreeToTerms) {
+      alert("Please agree to the Terms of Service to continue.");
+      return;
     }
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match. Please try again.");
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://learningvault.in';
+      
+      const response = await fetch(`${API_BASE_URL}/api/users/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          termsAccepted: formData.agreeToTerms,
+          subscribeUpdates: formData.subscribeNewsletter
+        })
+      });
 
-    // If successful, move to OTP step
-    setCurrentStep("otp");
-    startResendTimer();
-
-  } catch (error) {
-    alert(error.message || "Network error. Please check your connection and try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+      const result = await response.json();
+      
+      if (response.ok) {
+        // Move to OTP step
+        setCurrentStep("otp");
+        startResendTimer();
+      } else {
+        alert(result.message || "Signup failed. Please try again.");
+      }
+    } catch (error) {
+      alert("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
@@ -117,7 +117,7 @@ const SignUpPage = () => {
     
     try {
       // Replace with your actual OTP verification endpoint
-      const response = await fetch('https://api.learningvault.in/api/users/verify-otp', {
+      const response = await fetch(`${API_BASE_URL}/api/users/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,8 +131,8 @@ const SignUpPage = () => {
       const result = await response.json();
       
       if (response.ok) {
-        alert("Account verified successfully! Welcome to LearningVault!");
-        // Redirect to dashboard or login page
+        // Move to success step
+        setCurrentStep("success");
       } else {
         alert(result.message || "Invalid OTP. Please try again.");
       }
@@ -150,7 +150,7 @@ const SignUpPage = () => {
     
     try {
       // Replace with your actual resend OTP endpoint
-      const response = await fetch('https://api.learningvault.in/api/users/resend-otp', {
+      const response = await fetch(`${API_BASE_URL}/api/users/resend-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ const SignUpPage = () => {
                   Join thousands of learners who transformed their careers through practical, project-based education. Your future starts here.
                 </p>
               </>
-            ) : (
+            ) : currentStep === "otp" ? (
               <>
                 <h2 className="text-3xl font-light text-black mb-6 leading-tight">
                   Almost there!
@@ -235,6 +235,17 @@ const SignUpPage = () => {
                 </h2>
                 <p className="text-lg text-gray-500 font-light mb-12 leading-relaxed">
                   We've sent a 6-digit code to {formData.email}. Enter it below to activate your account and start learning.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl font-light text-black mb-6 leading-tight">
+                  Account Activated!
+                  <br />
+                  <span className="text-gray-600">Welcome to LearningVault</span>
+                </h2>
+                <p className="text-lg text-gray-500 font-light mb-12 leading-relaxed">
+                  Your account has been successfully verified. You're now ready to begin your learning journey with us!
                 </p>
               </>
             )}
@@ -311,12 +322,21 @@ const SignUpPage = () => {
                   {currentStep === "signup" ? "1" : "✓"}
                 </div>
                 <div className={`flex-1 h-1 mx-3 ${
-                  currentStep === "otp" ? "bg-green-500" : "bg-gray-200"
+                  currentStep === "otp" || currentStep === "success" ? "bg-green-500" : "bg-gray-200"
                 }`}></div>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep === "otp" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-400"
+                  currentStep === "signup" ? "bg-gray-200 text-gray-400" : 
+                  currentStep === "otp" ? "bg-blue-500 text-white" : "bg-green-500 text-white"
                 }`}>
-                  2
+                  {currentStep === "success" ? "✓" : "2"}
+                </div>
+                <div className={`flex-1 h-1 mx-3 ${
+                  currentStep === "success" ? "bg-green-500" : "bg-gray-200"
+                }`}></div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  currentStep === "success" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-400"
+                }`}>
+                  {currentStep === "success" ? "✓" : "3"}
                 </div>
               </div>
 
@@ -538,7 +558,7 @@ const SignUpPage = () => {
                     </button>
                   </form>
                 </>
-              ) : (
+              ) : currentStep === "otp" ? (
                 /* OTP Verification Form */
                 <>
                   {/* Form Header */}
@@ -615,6 +635,88 @@ const SignUpPage = () => {
                       Back to Sign Up
                     </button>
                   </form>
+                </>
+              ) : (
+                /* Success Screen */
+                <>
+                  {/* Success Header */}
+                  <div className="text-center mb-8">
+                    <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                      <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-light text-black mb-2">Account Activated!</h3>
+                    <p className="text-gray-500 text-sm">Welcome to LearningVault</p>
+                  </div>
+
+                  {/* Success Content */}
+                  <div className="space-y-6">
+                    {/* Success Message */}
+                    <div className="text-center">
+                      <p className="text-gray-600 mb-4">
+                        Congratulations! Your account has been successfully verified and activated.
+                      </p>
+                      <p className="text-gray-600 mb-6">
+                        You're now ready to start your learning journey with us.
+                      </p>
+                    </div>
+
+                    {/* Next Steps */}
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
+                      <h4 className="font-medium text-blue-900 mb-3 text-center">What's Next?</h4>
+                      <div className="space-y-3 text-sm text-blue-700">
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                          Complete your profile setup
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                          Browse our course catalog
+                        </div>
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                          Start your first learning path
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="space-y-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Redirect to dashboard
+                          window.location.href = '/dashboard';
+                        }}
+                        className="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 px-6 rounded-xl font-medium transition-all duration-200 transform hover:scale-[1.02]"
+                      >
+                        Go to Dashboard
+                      </button>
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Redirect to courses
+                          window.location.href = '/courses';
+                        }}
+                        className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 py-3 px-6 rounded-xl font-medium transition-all duration-200"
+                      >
+                        Browse Courses
+                      </button>
+                    </div>
+
+                    {/* User Info Summary */}
+                    <div className="mt-8 pt-6 border-t border-gray-100">
+                      <div className="text-center text-sm text-gray-600">
+                        <p className="mb-1">Account created for:</p>
+                        <p className="font-medium text-gray-800">
+                          {formData.firstName} {formData.lastName}
+                        </p>
+                        <p className="text-gray-500">{formData.email}</p>
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
 
