@@ -72,7 +72,7 @@ const SignUpPage = () => {
     setIsLoading(true);
     
     try {
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://learningvault.in';
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://api.learningvault.in';
       
       const response = await fetch(`${API_BASE_URL}/api/users/signup`, {
         method: 'POST',
