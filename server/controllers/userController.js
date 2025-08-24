@@ -283,3 +283,40 @@ export const verifyOtp = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const resendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email=$1",
+      [email]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(400).json({ message: "User not found." });
+
+    const user = result.rows[0];
+
+    if (user.is_verified)
+      return res.status(400).json({ message: "User already verified." });
+
+    // Generate new OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    await pool.query(
+      "UPDATE users SET otp=$1, otp_expires=$2 WHERE email=$3",
+      [otp, otpExpires, email]
+    );
+
+    // Send OTP email
+    const htmlTemplate = generateOTPEmailTemplate(user.first_name, otp);
+    await sendMail(email, "Your Verification Code - LearningVault", htmlTemplate);
+
+    res.json({ message: "OTP resent successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
