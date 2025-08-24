@@ -59,50 +59,52 @@ const SignUpPage = () => {
   };
 
   const handleSignUpSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.agreeToTerms) {
-      alert("Please agree to the Terms of Service to continue.");
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match. Please try again.");
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/users/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          confirmPassword: formData.confirmPassword,
-          termsAccepted: formData.agreeToTerms,
-          subscribeUpdates: formData.subscribeNewsletter
-        })
-      });
+  e.preventDefault();
+  if (!formData.agreeToTerms) {
+    alert("Please agree to the Terms of Service to continue.");
+    return;
+  }
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords don't match. Please try again.");
+    return;
+  }
 
-      const result = await response.json();
-      
-      if (response.ok) {
-        // Move to OTP step
-        setCurrentStep("otp");
-        startResendTimer();
-      } else {
-        alert(result.message || "Signup failed. Please try again.");
-      }
-    } catch (error) {
-      alert("Network error. Please check your connection and try again.");
-    } finally {
-      setIsLoading(false);
+  setIsLoading(true);
+
+  try {
+    const response = await fetch('https://api.learningvault.in/api/users/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        termsAccepted: formData.agreeToTerms,
+        subscribeUpdates: formData.subscribeNewsletter
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      // Explicitly throw for HTTP errors
+      throw new Error(result.message || `HTTP error ${response.status}`);
     }
-  };
+
+    // If successful, move to OTP step
+    setCurrentStep("otp");
+    startResendTimer();
+
+  } catch (error) {
+    alert(error.message || "Network error. Please check your connection and try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
