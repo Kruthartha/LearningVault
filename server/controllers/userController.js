@@ -259,7 +259,7 @@ export const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
   try {
     const result = await pool.query(
-      "SELECT otp, otp_expires, is_verified FROM users WHERE email=$1",
+      "SELECT first_name, otp, otp_expires, is_verified FROM users WHERE email=$1",
       [email]
     );
     if (result.rows.length === 0)
@@ -273,11 +273,29 @@ export const verifyOtp = async (req, res) => {
     if (new Date() > user.otp_expires)
       return res.status(400).json({ message: "OTP expired." });
 
+    // ✅ Update user to verified
     await pool.query(
       "UPDATE users SET is_verified=true, otp=NULL, otp_expires=NULL WHERE email=$1",
       [email]
     );
-    res.json({ message: "Email verified successfully." });
+
+    // ✅ Send account activation mail
+    const htmlTemplate = `
+      <h2>Welcome to LearningVault 🎉</h2>
+      <p>Hi ${user.first_name},</p>
+      <p>Your account has been successfully <strong>activated</strong>.</p>
+      <p>You can now log in and start exploring.</p>
+      <br/>
+      <p>Best regards,<br/>The LearningVault Team</p>
+    `;
+
+    await sendMail(
+      email,
+      "Your Account is Activated - LearningVault",
+      htmlTemplate
+    );
+
+    res.json({ message: "Email verified successfully. Account activated." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
