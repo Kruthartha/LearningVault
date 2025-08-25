@@ -21,18 +21,52 @@ import {
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
-      console.log("Stored user:", storedUser); // check in console
-      if (storedUser) setUser(JSON.parse(storedUser));
+      console.log("Stored user:", storedUser);
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
     } catch (e) {
       console.error("Error parsing user:", e);
+    } finally {
+      setIsLoading(false); // Always stop loading
     }
   }, []);
 
-  if (!user) return <div>Loading...</div>;
+  // Show loading spinner while checking localStorage
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if no user data found
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">No user data found</h2>
+          <p className="text-gray-600 mb-4">Please log in again.</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const [selectedTab, setSelectedTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -334,15 +368,14 @@ const Dashboard = () => {
               {/* Profile */}
               <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  {user?.name ? user.name.charAt(0) : "U"}{" "}
-                  {/* First letter of name */}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                 </div>
                 <div className="hidden sm:block">
                   <div className="text-sm font-medium text-gray-900">
-                    {user?.name || "User Name"} {/* Full name */}
+                    {user?.name || "User Name"}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {user?.track || "Full-Stack Track"} {/* Track info */}
+                    {user?.track || "Full-Stack Track"}
                   </div>
                 </div>
               </div>
