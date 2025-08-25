@@ -370,7 +370,7 @@ const Dashboard = () => {
               {/* Profile */}
               <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  A
+                  {getInitials(user.first_name, user.last_name)}
                 </div>
                 <div className="hidden sm:block">
                   <div className="text-sm font-medium text-gray-900">
