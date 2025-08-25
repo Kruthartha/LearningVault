@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ import navigate
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,8 @@ const LoginPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate(); // ✅ hook for redirect
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -28,7 +31,7 @@ const LoginPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // <-- important! allows cookies (refresh token)
+        credentials: "include", // needed for refresh token
         body: JSON.stringify(formData),
       });
 
@@ -38,11 +41,14 @@ const LoginPage = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // Save accessToken in memory/localStorage
+      // Save accessToken
       localStorage.setItem("accessToken", data.accessToken);
 
       alert("Login successful!");
       console.log("User:", data.user);
+
+      // ✅ Redirect to dashboard
+      navigate("/dashboard");
     } catch (err) {
       alert(err.message);
     } finally {
