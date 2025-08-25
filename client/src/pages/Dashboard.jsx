@@ -18,6 +18,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import DashboardLoading from "./DashboardLoading";
 
 const Dashboard = () => {
   const [selectedTab, setSelectedTab] = useState("overview");
@@ -139,40 +140,40 @@ const Dashboard = () => {
     },
   ];
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const token = localStorage.getItem("accessToken"); // ✅ get token
-      if (!token) {
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("accessToken"); // ✅ get token
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        const res = await fetch("https://api.learningvault.in/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ attach token
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Unauthorized");
+        }
+
+        const data = await res.json();
+        if (data.ok) {
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        setUser(null); // clear on error
+      } finally {
         setLoading(false);
-        return;
       }
+    };
 
-      const res = await fetch("https://api.learningvault.in/api/auth/me", {
-        headers: {
-          "Authorization": `Bearer ${token}`, // ✅ attach token
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Unauthorized");
-      }
-
-      const data = await res.json();
-      if (data.ok) {
-        setUser(data.user);
-      }
-    } catch (err) {
-      console.error("Error fetching user:", err);
-      setUser(null); // clear on error
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchUser();
-}, []);
+    fetchUser();
+  }, []);
 
   // 👤 Helper for initials
   const getInitials = (first, last) => {
@@ -182,11 +183,7 @@ useEffect(() => {
 
   // If still loading API
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-600">
-        Loading Dashboard...
-      </div>
-    );
+    return <DashboardLoading />;
   }
 
   const learningPath = [
