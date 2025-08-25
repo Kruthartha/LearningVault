@@ -1,7 +1,7 @@
 import React from "react";
 import { BookOpen, Target, Award, Users } from "lucide-react";
 
-const DashboardLoading = () => {
+const LoadingScreen = () => {
   return (
     <div className="min-h-screen bg-gray-50/30 flex items-center justify-center">
       <div className="text-center max-w-md mx-auto px-4">
@@ -60,7 +60,7 @@ const DashboardLoading = () => {
         {/* Loading Text */}
         <div className="mb-8">
           <h2 className="text-xl md:text-2xl font-light text-black mb-2">
-            Loading Dashboard
+            Loading your Learning Environment
           </h2>
           <p className="text-gray-600 font-light">
             Preparing your learning workspace...
@@ -133,4 +133,4 @@ const DashboardLoading = () => {
   );
 };
 
-export default DashboardLoading;
+export default LoadingScreen;
