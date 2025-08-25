@@ -15,7 +15,17 @@ app.use(cookieParser());
 
 // Enable CORS
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://learningvault.in'], // allowed frontends
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'https://learningvault.in'
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, origin);  // echo the exact origin back
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
