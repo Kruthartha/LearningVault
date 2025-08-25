@@ -23,7 +23,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://api.learningvault.in/api/auth/login", {
+      const res = await fetch("https://api.learningvault.in/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
