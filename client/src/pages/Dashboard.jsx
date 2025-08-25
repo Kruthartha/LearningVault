@@ -139,23 +139,40 @@ const Dashboard = () => {
     },
   ];
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("https://api.learningvault.in/api/auth/me");
-        const data = await res.json();
-        if (data.ok) {
-          setUser(data.user);
-        }
-      } catch (err) {
-        console.error("Error fetching user:", err);
-      } finally {
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem("accessToken"); // ✅ get token
+      if (!token) {
         setLoading(false);
+        return;
       }
-    };
 
-    fetchUser();
-  }, []);
+      const res = await fetch("https://api.learningvault.in/api/auth/me", {
+        headers: {
+          "Authorization": `Bearer ${token}`, // ✅ attach token
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Unauthorized");
+      }
+
+      const data = await res.json();
+      if (data.ok) {
+        setUser(data.user);
+      }
+    } catch (err) {
+      console.error("Error fetching user:", err);
+      setUser(null); // clear on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUser();
+}, []);
 
   // 👤 Helper for initials
   const getInitials = (first, last) => {
