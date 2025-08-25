@@ -157,9 +157,22 @@ export const me = async (req, res) => {
     const auth = req.headers.authorization || '';
     const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
     if (!token) return res.status(401).json({ message: 'No token' });
+
     const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    res.json({ ok: true, user: payload });
-  } catch {
+
+    // Fetch user from database
+    const result = await db.query(
+      'SELECT id, first_name, last_name, email FROM users WHERE id = $1',
+      [payload.id]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ ok: true, user });
+  } catch (err) {
+    console.error(err);
     res.status(401).json({ message: 'Invalid token' });
   }
 };
