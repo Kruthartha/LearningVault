@@ -48,7 +48,10 @@ const LoginPage = () => {
       console.log("User:", data.user);
 
       // ✅ Redirect to dashboard
+      console.log("Redirecting to dashboard...");
+
       navigate("/dashboard");
+      console.log("Redirecting to dashboard...");
     } catch (err) {
       alert(err.message);
     } finally {
@@ -129,7 +132,10 @@ const LoginPage = () => {
             </div>
 
             {/* Form Container */}
-            <form className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-gray-100 " onSubmit={handleSubmit}>
+            <form
+              className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-gray-100 "
+              onSubmit={handleSubmit}
+            >
               {/* Form Header */}
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-light text-black mb-2">
