@@ -15,10 +15,13 @@ import {
   Search,
   Filter,
   MoreVertical,
+  Menu,
+  X,
 } from "lucide-react";
 
 const Dashboard = () => {
   const [selectedTab, setSelectedTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -155,8 +158,11 @@ const Dashboard = () => {
 
   const TabButton = ({ id, label, isActive, onClick }) => (
     <button
-      onClick={() => onClick(id)}
-      className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+      onClick={() => {
+        onClick(id);
+        setMobileMenuOpen(false);
+      }}
+      className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 w-full md:w-auto ${
         isActive
           ? "bg-slate-800 text-white shadow-sm"
           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -167,26 +173,26 @@ const Dashboard = () => {
   );
 
   const StatCard = ({ icon: Icon, label, value, change, color = "blue" }) => (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-      <div className="flex items-center justify-between mb-4">
-        <div className={`p-3 bg-${color}-50 rounded-xl`}>
-          <Icon className={`w-6 h-6 text-${color}-600`} />
+    <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+      <div className="flex items-center justify-between mb-3 md:mb-4">
+        <div className={`p-2 md:p-3 bg-${color}-50 rounded-xl`}>
+          <Icon className={`w-4 h-4 md:w-6 md:h-6 text-${color}-600`} />
         </div>
         {change && (
-          <div className="flex items-center text-sm text-green-600">
-            <TrendingUp className="w-4 h-4 mr-1" />+{change}%
+          <div className="flex items-center text-xs md:text-sm text-green-600">
+            <TrendingUp className="w-3 h-3 md:w-4 md:h-4 mr-1" />+{change}%
           </div>
         )}
       </div>
       <div>
-        <div className="text-2xl font-light text-gray-900 mb-1">{value}</div>
-        <div className="text-sm text-gray-500">{label}</div>
+        <div className="text-xl md:text-2xl font-light text-gray-900 mb-1">{value}</div>
+        <div className="text-xs md:text-sm text-gray-500">{label}</div>
       </div>
     </div>
   );
 
   const CourseCard = ({ course }) => (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
+    <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
@@ -194,10 +200,10 @@ const Dashboard = () => {
               {course.phase}
             </span>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+          <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
             {course.title}
           </h3>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-xs md:text-sm text-gray-500 mb-4">
             Instructor: {course.instructor}
           </p>
         </div>
@@ -207,7 +213,7 @@ const Dashboard = () => {
       </div>
 
       <div className="mb-6">
-        <div className="flex items-center justify-between text-sm mb-2">
+        <div className="flex items-center justify-between text-xs md:text-sm mb-2">
           <span className="text-gray-600">Progress</span>
           <span className="font-medium text-gray-900">
             {course.completedLessons}/{course.totalLessons} lessons
@@ -219,17 +225,17 @@ const Dashboard = () => {
             style={{ width: `${course.progress}%` }}
           ></div>
         </div>
-        <div className="text-right text-sm text-gray-500 mt-1">
+        <div className="text-right text-xs md:text-sm text-gray-500 mt-1">
           {course.progress}%
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <p className="text-sm text-gray-500">Next lesson:</p>
-          <p className="font-medium text-gray-900">{course.nextLesson}</p>
+          <p className="text-xs md:text-sm text-gray-500">Next lesson:</p>
+          <p className="font-medium text-gray-900 text-sm md:text-base">{course.nextLesson}</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors">
+        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors text-sm">
           <Play className="w-4 h-4" />
           Continue
         </button>
@@ -241,11 +247,11 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50/30">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4 md:gap-8">
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-light text-black">
+                <h1 className="text-xl md:text-2xl font-light text-black">
                   Learning
                   <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
                     Vault
@@ -253,7 +259,8 @@ const Dashboard = () => {
                 </h1>
               </div>
 
-              <nav className="hidden md:flex items-center gap-1">
+              {/* Desktop Navigation */}
+              <nav className="hidden lg:flex items-center gap-1">
                 <TabButton
                   id="overview"
                   label="Overview"
@@ -281,8 +288,9 @@ const Dashboard = () => {
               </nav>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="relative hidden md:block">
+            <div className="flex items-center gap-2 md:gap-4">
+              {/* Desktop Search */}
+              <div className="relative hidden lg:block">
                 <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <input
                   type="text"
@@ -291,54 +299,110 @@ const Dashboard = () => {
                 />
               </div>
 
+              {/* Mobile Search Button */}
+              <button className="lg:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                <Search className="w-5 h-5" />
+              </button>
+
+              {/* Notifications */}
               <div className="relative">
                 <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                  <Bell className="w-6 h-6" />
+                  <Bell className="w-5 h-5 md:w-6 md:h-6" />
                   {notifications.some((n) => n.unread) && (
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
                   )}
                 </button>
               </div>
 
-              <div className="flex items-center gap-3">
+              {/* Profile */}
+              <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-medium text-sm">
                   A
                 </div>
-                <div className="hidden md:block">
+                <div className="hidden sm:block">
                   <div className="text-sm font-medium text-gray-900">
                     Alex Johnson
                   </div>
                   <div className="text-xs text-gray-500">Full-Stack Track</div>
                 </div>
               </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
           </div>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden mt-4 pb-4 border-t border-gray-100 pt-4">
+              <nav className="flex flex-col gap-2">
+                <TabButton
+                  id="overview"
+                  label="Overview"
+                  isActive={selectedTab === "overview"}
+                  onClick={setSelectedTab}
+                />
+                <TabButton
+                  id="courses"
+                  label="My Courses"
+                  isActive={selectedTab === "courses"}
+                  onClick={setSelectedTab}
+                />
+                <TabButton
+                  id="projects"
+                  label="Projects"
+                  isActive={selectedTab === "projects"}
+                  onClick={setSelectedTab}
+                />
+                <TabButton
+                  id="community"
+                  label="Community"
+                  isActive={selectedTab === "community"}
+                  onClick={setSelectedTab}
+                />
+              </nav>
+              {/* Mobile Search */}
+              <div className="relative mt-4">
+                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search courses, projects..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         {/* Welcome Section */}
-        <div className="mb-12">
-          <h2 className="text-4xl font-light text-black mb-4">
+        <div className="mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-4xl font-light text-black mb-2 md:mb-4">
             Welcome back, <span className="font-medium">Alex</span>
           </h2>
-          <p className="text-xl text-gray-600 font-light">
+          <p className="text-base md:text-xl text-gray-600 font-light">
             Ready to continue your learning journey? You're doing great!
           </p>
         </div>
 
         {/* Learning Path Progress */}
-        <div className="mb-12">
-          <h3 className="text-2xl font-light text-black mb-8">
+        <div className="mb-8 md:mb-12">
+          <h3 className="text-xl md:text-2xl font-light text-black mb-6 md:mb-8">
             Your Learning Path
           </h3>
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-100">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
               {learningPath.map((phase, index) => (
-                <div key={phase.phase} className="flex items-center">
-                  <div className="flex flex-col items-center">
+                <div key={phase.phase} className="flex items-center w-full sm:w-auto">
+                  <div className="flex flex-col items-center flex-1 sm:flex-none">
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium ${
+                      className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-sm font-medium ${
                         phase.completed
                           ? "bg-green-100 text-green-700 border-2 border-green-200"
                           : phase.current
@@ -347,14 +411,14 @@ const Dashboard = () => {
                       }`}
                     >
                       {phase.completed ? (
-                        <CheckCircle className="w-6 h-6" />
+                        <CheckCircle className="w-5 h-5 md:w-6 md:h-6" />
                       ) : (
                         phase.phase
                       )}
                     </div>
-                    <div className="mt-4 text-center">
+                    <div className="mt-3 md:mt-4 text-center">
                       <div
-                        className={`text-sm font-medium ${
+                        className={`text-xs md:text-sm font-medium ${
                           phase.current
                             ? "text-blue-700"
                             : phase.completed
@@ -379,7 +443,7 @@ const Dashboard = () => {
                   </div>
                   {index < learningPath.length - 1 && (
                     <div
-                      className={`w-24 h-0.5 mx-4 ${
+                      className={`hidden sm:block w-16 md:w-24 h-0.5 mx-4 ${
                         phase.completed ? "bg-green-200" : "bg-gray-200"
                       }`}
                     ></div>
@@ -391,7 +455,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6 mb-8 md:mb-12">
           <StatCard
             icon={BookOpen}
             label="Courses Completed"
@@ -436,20 +500,20 @@ const Dashboard = () => {
           />
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             {/* Current Courses */}
             <div>
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-light text-black">
+              <div className="flex items-center justify-between mb-6 md:mb-8">
+                <h3 className="text-xl md:text-2xl font-light text-black">
                   Continue Learning
                 </h3>
                 <button className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm">
                   View all <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {currentCourses.map((course) => (
                   <CourseCard key={course.id} course={course} />
                 ))}
@@ -458,13 +522,13 @@ const Dashboard = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             {/* Upcoming Deadlines */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h4 className="text-lg font-medium text-black mb-6">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100">
+              <h4 className="text-base md:text-lg font-medium text-black mb-4 md:mb-6">
                 Upcoming Deadlines
               </h4>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {upcomingDeadlines.map((deadline) => (
                   <div key={deadline.id} className="flex items-start gap-3">
                     <div
@@ -493,14 +557,14 @@ const Dashboard = () => {
             </div>
 
             {/* Recent Achievements */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h4 className="text-lg font-medium text-black mb-6">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100">
+              <h4 className="text-base md:text-lg font-medium text-black mb-4 md:mb-6">
                 Recent Achievements
               </h4>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {recentAchievements.map((achievement) => (
                   <div key={achievement.id} className="flex items-center gap-3">
-                    <div className="text-2xl">{achievement.icon}</div>
+                    <div className="text-xl md:text-2xl">{achievement.icon}</div>
                     <div>
                       <div className="font-medium text-gray-900 text-sm">
                         {achievement.title}
@@ -518,11 +582,11 @@ const Dashboard = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h4 className="text-lg font-medium text-black mb-6">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100">
+              <h4 className="text-base md:text-lg font-medium text-black mb-4 md:mb-6">
                 Quick Actions
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50 rounded-lg transition-colors">
                   <Calendar className="w-5 h-5 text-gray-600" />
                   <span className="text-sm text-gray-700">
