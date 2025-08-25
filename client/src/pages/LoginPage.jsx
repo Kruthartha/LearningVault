@@ -43,6 +43,7 @@ const LoginPage = () => {
 
       // Save accessToken
       localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       alert("Login successful!");
       console.log("User:", data.user);
