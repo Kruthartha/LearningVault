@@ -23,8 +23,13 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    try {
+      const storedUser = localStorage.getItem("user");
+      console.log("Stored user:", storedUser); // check in console
+      if (storedUser) setUser(JSON.parse(storedUser));
+    } catch (e) {
+      console.error("Error parsing user:", e);
+    }
   }, []);
 
   if (!user) return <div>Loading...</div>;
