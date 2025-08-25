@@ -161,7 +161,7 @@ export const me = async (req, res) => {
     const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
     // Fetch user from database
-    const result = await db.query(
+    const result = await pool.query(
       'SELECT id, first_name, last_name, email FROM users WHERE id = $1',
       [payload.id]
     );

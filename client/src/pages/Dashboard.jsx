@@ -20,55 +20,10 @@ import {
 } from "lucide-react";
 
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
-
-  useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      console.log("Stored user:", storedUser);
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch (e) {
-      console.error("Error parsing user:", e);
-    } finally {
-      setIsLoading(false); // Always stop loading
-    }
-  }, []);
-
-  // Show loading spinner while checking localStorage
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error if no user data found
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">No user data found</h2>
-          <p className="text-gray-600 mb-4">Please log in again.</p>
-          <button 
-            onClick={() => window.location.href = '/login'}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const [selectedTab, setSelectedTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null); //
+  const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -184,9 +139,42 @@ const Dashboard = () => {
     },
   ];
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/me");
+        const data = await res.json();
+        if (data.ok) {
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Error fetching user:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // 👤 Helper for initials
+  const getInitials = (first, last) => {
+    if (!first) return "";
+    return (first[0] + (last ? last[0] : "")).toUpperCase();
+  };
+
+  // If still loading API
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-600">
+        Loading Dashboard...
+      </div>
+    );
+  }
+
   const learningPath = [
-    { phase: 1, title: "Skills Foundation", completed: true, current: false },
-    { phase: 2, title: "Proof of Skills", completed: false, current: true },
+    { phase: 1, title: "Skills Foundation", completed: false, current: true },
+    { phase: 2, title: "Proof of Skills", completed: false, current: false },
     {
       phase: 3,
       title: "Launch Your Next Chapter",
@@ -364,19 +352,17 @@ const Dashboard = () => {
                   )}
                 </button>
               </div>
-
+              {/* TODO: Add Dynamic Content */}
               {/* Profile */}
               <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                  A
                 </div>
                 <div className="hidden sm:block">
                   <div className="text-sm font-medium text-gray-900">
-                    {user?.name || "User Name"}
+                    {user.first_name} {user.last_name}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {user?.track || "Full-Stack Track"}
-                  </div>
+                  <div className="text-xs text-gray-500">Full-Stack Track</div>
                 </div>
               </div>
 
@@ -436,12 +422,12 @@ const Dashboard = () => {
           )}
         </div>
       </header>
-
+      {/* TODO: Add Dynamic Content */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
         {/* Welcome Section */}
         <div className="mb-8 md:mb-12">
           <h2 className="text-2xl md:text-4xl font-light text-black mb-2 md:mb-4">
-            Welcome back, <span className="font-medium">{user.name}</span>
+            Welcome back, <span className="font-medium">{user.first_name}</span>
           </h2>
           <p className="text-base md:text-xl text-gray-600 font-light">
             Ready to continue your learning journey? You're doing great!
