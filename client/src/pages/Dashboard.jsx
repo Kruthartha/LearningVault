@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BookOpen,
   Award,
@@ -20,6 +20,14 @@ import {
 } from "lucide-react";
 
 const Dashboard = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+
+  if (!user) return <div>Loading...</div>;
   const [selectedTab, setSelectedTab] = useState("overview");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -185,7 +193,9 @@ const Dashboard = () => {
         )}
       </div>
       <div>
-        <div className="text-xl md:text-2xl font-light text-gray-900 mb-1">{value}</div>
+        <div className="text-xl md:text-2xl font-light text-gray-900 mb-1">
+          {value}
+        </div>
         <div className="text-xs md:text-sm text-gray-500">{label}</div>
       </div>
     </div>
@@ -233,7 +243,9 @@ const Dashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <p className="text-xs md:text-sm text-gray-500">Next lesson:</p>
-          <p className="font-medium text-gray-900 text-sm md:text-base">{course.nextLesson}</p>
+          <p className="font-medium text-gray-900 text-sm md:text-base">
+            {course.nextLesson}
+          </p>
         </div>
         <button className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition-colors text-sm">
           <Play className="w-4 h-4" />
@@ -317,13 +329,16 @@ const Dashboard = () => {
               {/* Profile */}
               <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  A
+                  {user?.name ? user.name.charAt(0) : "U"}{" "}
+                  {/* First letter of name */}
                 </div>
                 <div className="hidden sm:block">
                   <div className="text-sm font-medium text-gray-900">
-                    Alex Johnson
+                    {user?.name || "User Name"} {/* Full name */}
                   </div>
-                  <div className="text-xs text-gray-500">Full-Stack Track</div>
+                  <div className="text-xs text-gray-500">
+                    {user?.track || "Full-Stack Track"} {/* Track info */}
+                  </div>
                 </div>
               </div>
 
@@ -332,7 +347,11 @@ const Dashboard = () => {
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {mobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
               </button>
             </div>
           </div>
@@ -384,7 +403,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8 md:mb-12">
           <h2 className="text-2xl md:text-4xl font-light text-black mb-2 md:mb-4">
-            Welcome back, <span className="font-medium">Alex</span>
+            Welcome back, <span className="font-medium">{user.name}</span>
           </h2>
           <p className="text-base md:text-xl text-gray-600 font-light">
             Ready to continue your learning journey? You're doing great!
@@ -399,7 +418,10 @@ const Dashboard = () => {
           <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-100">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
               {learningPath.map((phase, index) => (
-                <div key={phase.phase} className="flex items-center w-full sm:w-auto">
+                <div
+                  key={phase.phase}
+                  className="flex items-center w-full sm:w-auto"
+                >
                   <div className="flex flex-col items-center flex-1 sm:flex-none">
                     <div
                       className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-sm font-medium ${
@@ -564,7 +586,9 @@ const Dashboard = () => {
               <div className="space-y-3 md:space-y-4">
                 {recentAchievements.map((achievement) => (
                   <div key={achievement.id} className="flex items-center gap-3">
-                    <div className="text-xl md:text-2xl">{achievement.icon}</div>
+                    <div className="text-xl md:text-2xl">
+                      {achievement.icon}
+                    </div>
                     <div>
                       <div className="font-medium text-gray-900 text-sm">
                         {achievement.title}
