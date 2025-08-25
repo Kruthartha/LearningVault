@@ -21,11 +21,33 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
+
+    try {
+      const res = await fetch("http://api.learningvault.in/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // <-- important! allows cookies (refresh token)
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // Save accessToken in memory/localStorage
+      localStorage.setItem("accessToken", data.accessToken);
+
       alert("Login successful!");
-    }, 2000);
+      console.log("User:", data.user);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -101,7 +123,7 @@ const LoginPage = () => {
             </div>
 
             {/* Form Container */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-gray-100">
+            <form className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-gray-100 " onSubmit={handleSubmit}>
               {/* Form Header */}
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-light text-black mb-2">
@@ -305,7 +327,7 @@ const LoginPage = () => {
                   </a>
                 </p>
               </div>
-            </div>
+            </form>
 
             {/* Additional Info */}
             {/* <div className="mt-8 text-center">
