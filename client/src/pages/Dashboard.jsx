@@ -142,7 +142,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/auth/me");
+        const res = await fetch("https://api.learningvault.in/api/auth/me");
         const data = await res.json();
         if (data.ok) {
           setUser(data.user);
