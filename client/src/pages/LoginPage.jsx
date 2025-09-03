@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // ✅ import navigate
 
+// const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
+
 const LoginPage = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -26,7 +29,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("https://api.learningvault.in/api/auth/login", {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -8,7 +8,6 @@ import SignupPage from "./pages/SignupPage";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/navigation/ProtectedRoute";
 import TestDashboard from "./pages/TestDashboard";
-import LearnerDashboard from "./pages/LearnerDashboard"
 
 function App() {
   return (
@@ -17,9 +16,7 @@ function App() {
         <Route path="/" element={<HomePage />} /> {/* Home page */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        {/* <Route path="/testdashboard" element={<TestDashboard />} />
-        <Route path="/learner" element={<LearnerDashboard />} /> */}
-
+        <Route path="/testdashboard" element={<TestDashboard />} />
         <Route path="*" element={<NotFound />} /> {/* 404 Page */}
         <Route
           path="/dashboard"

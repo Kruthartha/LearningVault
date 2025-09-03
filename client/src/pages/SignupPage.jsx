@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const SignUpPage = () => {
 
-  const API_BASE_URL = 'https://api.learningvault.in';
+const API_URL = import.meta.env.VITE_API_URL;
 
   const [currentStep, setCurrentStep] = useState("signup"); // "signup", "otp", or "success"
   const [formData, setFormData] = useState({
@@ -76,7 +76,7 @@ const SignUpPage = () => {
     
     try {
       
-      const response = await fetch(`${API_BASE_URL}/api/users/signup`, {
+      const response = await fetch(`${API_URL}/auth/users/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

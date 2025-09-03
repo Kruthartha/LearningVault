@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import LoadingScreen from "../../pages/LoadingScreen";
 
-const API_URL = "https://api.learningvault.in/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
