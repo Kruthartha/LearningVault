@@ -1,5 +1,5 @@
-import NavBar from "../components/layout/NavBar";
-import HomeSection from "../components/sections/HomeSection";
+import NavBar from "../../components/layout/NavBar";
+import HomeSection from "../../components/sections/HomeSection";
 
 function HomePage() {
   return (

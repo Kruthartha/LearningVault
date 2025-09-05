@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ import navigate
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom"; // ✅ import navigate
 
 // const API_URL = process.env.REACT_APP_API_URL;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -10,6 +10,10 @@ const LoginPage = () => {
     password: "",
     rememberMe: false,
   });
+
+    useEffect(() => {
+    document.title = "Login - LearningVault";
+  }, []);
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -249,12 +253,12 @@ const LoginPage = () => {
                       Remember me
                     </span>
                   </label>
-                  <a
-                    href="#"
+                  <Link
+                    to="/forgot-password"
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Submit Button */}

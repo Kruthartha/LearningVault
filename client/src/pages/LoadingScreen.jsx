@@ -116,19 +116,6 @@ const LoadingScreen = () => {
         ></div>
       </div>
 
-      <style jsx>{`
-        @keyframes loading-progress {
-          0% {
-            width: 20%;
-          }
-          50% {
-            width: 80%;
-          }
-          100% {
-            width: 65%;
-          }
-        }
-      `}</style>
     </div>
   );
 };

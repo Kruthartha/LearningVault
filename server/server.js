@@ -39,7 +39,7 @@ app.use(
 );
 
 // Routes
-app.use("/api/users", userRoutes);
+app.use("/api/", userRoutes);
 app.use("/api/auth", authRoutes); // /login, /refresh, /logout
 
 const PORT = process.env.PORT || 3000;

@@ -1,4 +1,3 @@
-// src/components/ProtectedRoute.jsx
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import LoadingScreen from "../../pages/LoadingScreen";
@@ -8,8 +7,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
 
-  // Validate access token by calling /auth/me
   const validateAccessToken = async (token) => {
     try {
       const res = await fetch(`${API_URL}/auth/me`, {
@@ -18,26 +17,28 @@ const ProtectedRoute = ({ children }) => {
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem("user", JSON.stringify(data.user));
-        return true;
+        return data.user;
       } else if (res.status === 401) {
-        // Access token expired → try refresh
-        return await refreshAccessToken();
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          const newToken = localStorage.getItem("accessToken");
+          return await validateAccessToken(newToken); // retry
+        }
+        return null;
       } else {
-        return false;
+        return null;
       }
     } catch (err) {
       console.error("Auth validation error:", err);
-      return false;
+      return null;
     }
   };
 
-  // Call refresh endpoint; cookie is sent automatically
   const refreshAccessToken = async () => {
     try {
       const res = await fetch(`${API_URL}/auth/refresh`, {
         method: "POST",
-        credentials: "include", // important to send cookie
+        credentials: "include",
       });
 
       if (!res.ok) return false;
@@ -54,6 +55,19 @@ const ProtectedRoute = ({ children }) => {
     }
   };
 
+  const fetchUserProfile = async (token) => {
+    try {
+      const res = await fetch(`${API_URL}/user/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Fetch profile error:", err);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("accessToken");
@@ -63,8 +77,16 @@ const ProtectedRoute = ({ children }) => {
         return;
       }
 
-      const valid = await validateAccessToken(token);
-      setAuthorized(valid);
+      const user = await validateAccessToken(token);
+      if (!user) {
+        setAuthorized(false);
+        setLoading(false);
+        return;
+      }
+
+      const profile = await fetchUserProfile(token);
+      setUserProfile(profile);
+      setAuthorized(true);
       setLoading(false);
     };
 
@@ -79,7 +101,16 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  // Onboarding / Welcome Screen Logic
+  if (!userProfile.onboarding_completed && window.location.pathname !== "/welcome") {
+    return <Navigate to="/welcome" replace />;
+  }
+
+  if (userProfile.onboarding_completed && window.location.pathname === "/welcome") {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return typeof children === "function" ? children(userProfile) : children;
 };
 
 export default ProtectedRoute;
