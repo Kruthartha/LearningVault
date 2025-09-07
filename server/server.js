@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js"; // new
 
-dotenv.config({ path: `.env.${process.env.APP_ENV || "dev"}` });
+dotenv.config({ path: ".env" });
 const app = express();
 
 // Middleware
