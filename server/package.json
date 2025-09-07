@@ -4,7 +4,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "migrate:up": "dotenv -e .env -- node-pg-migrate up -m ./migrations",
+    "migrate:down": "dotenv -e .env -- node-pg-migrate down -m ./migrations",
+    "migrate:create": "dotenv -e .env -- node-pg-migrate create -m ./migrations"
   },
   "keywords": [],
   "type": "module",
@@ -23,5 +26,9 @@
     "nodemailer": "^7.0.5",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^10.0.0",
+    "node-pg-migrate": "^8.0.3"
   }
 }
