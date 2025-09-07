@@ -20,6 +20,8 @@ import Notifications from "./NotificationPanel";
 
 import { LayoutContext } from "../../context/LayoutContext";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const getInitials = (first, last) => {
   if (!first) return "?";
   return (first[0] + (last ? last[0] : "")).toUpperCase();
@@ -72,7 +74,7 @@ const DashboardLayout = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/user/profile", {
+        const res = await fetch(`${API_URL}/api/user/profile`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
