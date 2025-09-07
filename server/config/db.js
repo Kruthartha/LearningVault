@@ -1,8 +1,7 @@
 import pkg from "pg";
 const { Pool } = pkg;
 import dotenv from "dotenv";
-
-dotenv.config({ path: `.env.${process.env.APP_ENV || "dev"}` });
+dotenv.config();
 
 export const pool = new Pool({
   host: process.env.DB_HOST,
@@ -13,6 +12,7 @@ export const pool = new Pool({
 });
 
 pool.on("connect", () => console.log("Connected to PostgreSQL"));
+console.log("DB_PASS:", process.env.DB_PASS, typeof process.env.DB_PASS);
 pool.on("error", (err) =>
   console.error("Unexpected error on idle client", err)
 );
