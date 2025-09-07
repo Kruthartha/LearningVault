@@ -74,7 +74,7 @@ const DashboardLayout = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/user/profile`, {
+        const res = await fetch(`${API_URL}/user/profile`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
