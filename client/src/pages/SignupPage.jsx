@@ -76,7 +76,7 @@ const API_URL = import.meta.env.VITE_API_URL;
     
     try {
       
-      const response = await fetch(`${API_URL}/auth/users/signup`, {
+      const response = await fetch(`${API_URL}/auth/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ const API_URL = import.meta.env.VITE_API_URL;
     
     try {
       // Replace with your actual OTP verification endpoint
-      const response = await fetch(`${API_BASE_URL}/api/users/verify-otp`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ const API_URL = import.meta.env.VITE_API_URL;
     
     try {
       // Replace with your actual resend OTP endpoint
-      const response = await fetch(`${API_BASE_URL}/api/users/resend-otp`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
