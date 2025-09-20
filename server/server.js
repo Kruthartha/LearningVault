@@ -4,6 +4,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js"; // new
+import adminAuthRoutes from './routes/adminAuthRoutes.js';
+import lessonRoutes from './routes/lessonRoutes.js';
 
 dotenv.config({ path: ".env" });
 const app = express();
@@ -41,6 +43,8 @@ app.use(
 // Routes
 app.use("/api/", userRoutes);
 app.use("/api/auth", authRoutes); // /login, /refresh, /logout
+app.use('/api/auth/studio', adminAuthRoutes);
+app.use('/api/studio/lessons', lessonRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>

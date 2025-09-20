@@ -9,6 +9,29 @@ const ProtectedRoute = ({ children }) => {
   const [authorized, setAuthorized] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
 
+  // 🔹 EDIT: refresh should return the *new token*, not just true/false
+  const refreshAccessToken = async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) return null;
+
+      const data = await res.json();
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+        return data.accessToken; // ✅ return token
+      }
+      return null;
+    } catch (err) {
+      console.error("Refresh token error:", err);
+      return null;
+    }
+  };
+
+  // 🔹 EDIT: always return both user + token
   const validateAccessToken = async (token) => {
     try {
       const res = await fetch(`${API_URL}/auth/me`, {
@@ -17,12 +40,11 @@ const ProtectedRoute = ({ children }) => {
 
       if (res.ok) {
         const data = await res.json();
-        return data.user;
+        return { user: data.user, token };
       } else if (res.status === 401) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          const newToken = localStorage.getItem("accessToken");
-          return await validateAccessToken(newToken); // retry
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          return await validateAccessToken(newToken); // retry with new token
         }
         return null;
       } else {
@@ -34,34 +56,13 @@ const ProtectedRoute = ({ children }) => {
     }
   };
 
-  const refreshAccessToken = async () => {
-    try {
-      const res = await fetch(`${API_URL}/auth/refresh`, {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (!res.ok) return false;
-
-      const data = await res.json();
-      if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error("Refresh token error:", err);
-      return false;
-    }
-  };
-
   const fetchUserProfile = async (token) => {
     try {
       const res = await fetch(`${API_URL}/user/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
-      return data;
+      if (!res.ok) throw new Error("Profile fetch failed");
+      return await res.json();
     } catch (err) {
       console.error("Fetch profile error:", err);
       return null;
@@ -70,21 +71,31 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("accessToken");
+      let token = localStorage.getItem("accessToken");
       if (!token) {
         setAuthorized(false);
         setLoading(false);
         return;
       }
 
-      const user = await validateAccessToken(token);
-      if (!user) {
+      // 🔹 EDIT: validateAccessToken now gives back fresh token too
+      const validated = await validateAccessToken(token);
+      if (!validated) {
         setAuthorized(false);
         setLoading(false);
         return;
       }
 
-      const profile = await fetchUserProfile(token);
+      const { user, token: freshToken } = validated;
+
+      // 🔹 EDIT: fetch profile with *freshToken*
+      const profile = await fetchUserProfile(freshToken);
+      if (!profile) {
+        setAuthorized(false);
+        setLoading(false);
+        return;
+      }
+
       setUserProfile(profile);
       setAuthorized(true);
       setLoading(false);
@@ -102,11 +113,17 @@ const ProtectedRoute = ({ children }) => {
   }
 
   // Onboarding / Welcome Screen Logic
-  if (!userProfile.onboarding_completed && window.location.pathname !== "/welcome") {
+  if (
+    !userProfile.onboarding_completed &&
+    window.location.pathname !== "/welcome"
+  ) {
     return <Navigate to="/welcome" replace />;
   }
 
-  if (userProfile.onboarding_completed && window.location.pathname === "/welcome") {
+  if (
+    userProfile.onboarding_completed &&
+    window.location.pathname === "/welcome"
+  ) {
     return <Navigate to="/dashboard" replace />;
   }
 

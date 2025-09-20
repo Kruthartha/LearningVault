@@ -30,9 +30,9 @@ const getInitials = (first, last) => {
 const navItems = [
   { path: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { path: "/learn", label: "Learn", icon: BookOpen },
-  { path: "/practice", label: "Practice", icon: DraftingCompass },
-  { path: "/community", label: "Community", icon: Users },
-  { path: "/jobs", label: "Opportunities", icon: Sprout },
+  // { path: "/practice", label: "Practice", icon: DraftingCompass },
+  // { path: "/community", label: "Community", icon: Users },
+  // { path: "/jobs", label: "Opportunities", icon: Sprout },
 ];
 
 const DashboardLayout = () => {
