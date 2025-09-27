@@ -40,7 +40,7 @@ const CommandPalette = ({ open, setOpen, setSearchTerm }) => {
             onClick={() => setOpen(false)}
             className="text-xs text-gray-500 border border-gray-200 rounded-md px-2 py-1"
           >
-            ESC
+            ⌘K
           </button>
         </div>
         <div className="p-2 max-h-96 overflow-y-auto">

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Button from "../ui/Button";
 
 const NavLink = ({ href, text }) => (
   <a href={href} className="hover:text-gray-900 transition-colors duration-200">
@@ -29,7 +28,7 @@ const NavBar = () => {
     >
       <div className="max-w-5xl mx-auto px-6 py-5 flex justify-between items-center">
         <a
-          href="#home"
+          href="/"
           className="text-xl font-semilight tracking-wide hover:text-gray-700 transition"
         >
           Learning
@@ -39,18 +38,17 @@ const NavBar = () => {
         </a>
         <div className="flex items-center space-x-8">
           <nav className="space-x-8 text-gray-600 hidden md:flex text-sm font-medium">
-            <NavLink href="/" text="Home" />
-            <NavLink href="/about" text="Developer Session" />
-            <NavLink href="/contact" text="About" />
+            <NavLink href="/about" text="About" />
+            {/* <NavLink href="/how-it-works" text="How it Works" />
+            <NavLink href="/explore" text="Explore" />
+            <NavLink href="/blog" text="Insights" /> */}
           </nav>
-          <Button
-            size="small"
-            normalColor="bg-slate-800"
-            hoverColor="bg-slate-900"
-            href={"/login"}
+          <a
+            href="/login"
+            className="px-4 py-2 border text-sm bg-slate-800 text-white font-medium rounded-lg shadow-lg hover:bg-slate-900 hover:text-white transition-all duration-300 ease-in-out transform hover:scale-105 w-full sm:w-auto"
           >
             Login
-          </Button>
+          </a>
         </div>
       </div>
     </header>

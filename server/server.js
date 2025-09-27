@@ -45,7 +45,7 @@ app.use("/api/", userRoutes);
 app.use("/api/auth", authRoutes); // /login, /refresh, /logout
 app.use('/api/auth/studio', adminAuthRoutes);
 app.use('/api/studio/lessons', lessonRoutes);
-
+            
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)

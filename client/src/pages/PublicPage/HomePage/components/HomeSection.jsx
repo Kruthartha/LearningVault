@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Button from "../ui/Button";
+import Footer from "../../Layouts/Footer";
 
 const HomeSection = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -14,56 +14,57 @@ const HomeSection = () => {
     <div className="pt-20 bg-white overflow-hidden">
       {/* Hero Section with Parallax */}
       <div className="relative min-h-screen flex items-center justify-center">
+        <div className="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
+
         {/* Subtle background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-gray-50/30 via-white to-white"></div>
 
         {/* Floating elements */}
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-500 rounded-full animate-pulse opacity-40"></div>
-        <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse opacity-30 delay-1000"></div>
-        <div className="absolute bottom-1/3 left-1/6 w-1 h-1 bg-green-500 rounded-full animate-pulse opacity-50 delay-500"></div>
-
         <div className="relative max-w-7xl mx-auto px-6 text-center z-10">
           {/* Badge */}
-          <div className="inline-flex items-center px-4 py-1.5 bg-black/5 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700 mb-8 border border-gray-100">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-            Next-generation learning platform
-          </div>
 
           {/* Main Headline */}
-          <h1 className="text-7xl md:text-9xl font-extralight text-black mb-6 tracking-tighter leading-none">
-            Learning
-            <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
-              Vault
-            </span>
-          </h1>
 
-          {/* Tagline with enhanced typography */}
-          <p className="text-3xl md:text-4xl font-thin text-gray-600 mb-8 tracking-wide leading-tight">
-            Learn by building. Succeed by doing.
-          </p>
+          {/* Subtle Animated Gradient Background */}
+          <div className="absolute top-0 left-0 -z-10 h-full w-full bg-white"></div>
 
-          {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-gray-500 font-light mb-20 max-w-4xl mx-auto leading-relaxed">
-            The only education platform that guarantees your career success
-            through
-            <br className="hidden md:block" />
-            <span className="text-black font-medium">
-              practical skills
-            </span> and{" "}
-            <span className="text-black font-medium">real-world projects</span>.
-          </p>
+          <div className="container mx-auto px-4 z-10">
+            {/* Pre-headline Pill */}
+            <div className="inline-flex items-center px-4 py-1.5 bg-black/5 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700 mb-8 border border-gray-100">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              The Learning Platform of Tomorrow
+            </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col md:flex-row gap-6 justify-center items-center mb-20">
-            <Button
-              variant="primary"
-              size="medium"
-              normalColor="bg-slate-800"
-              className="min-w-[200px]"
-              onClick={() => alert("Get started")}
-            >
-              Get started
-            </Button>
+            {/* Main Headline */}
+            <h1 className="text-6xl md:text-8xl font-extralight text-black mb-6 tracking-tighter leading-none">
+              Master the Craft.<br></br>
+              <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
+                Think, Don’t Memorize.
+              </span>
+            </h1>
+
+            {/* Subtitle */}
+
+            <p className="text-xl md:text-2xl text-gray-500 font-light mb-12 max-w-3xl mx-auto leading-relaxed">
+              A research-backed learning platform designed for true mastery.
+              Move beyond simply knowing
+              <span className="text-black font-medium"> what, </span> to deeply
+              understanding
+              <span className="text-black font-medium"> why</span>, and bring
+              your ideas to life.
+            </p>
+
+            {/* Revised Call-to-Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
+              <a
+                href="#paths"
+                className="px-6 py-3 border bg-slate-900 text-white font-semibold rounded-2xl shadow-lg hover:bg-slate-900 hover:text-white transition-all duration-300 ease-in-out transform hover:scale-105 w-full sm:w-auto"
+              >
+                Experience the Future
+              </a>
+            </div>
+
+            {/* Visual Element: "Learning Path" Cards */}
           </div>
 
           {/* Scroll indicator */}
@@ -291,15 +292,21 @@ const HomeSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Button
-              variant="primary"
-              size="medium"
-              normalColor="bg-slate-800"
-              className="min-w-[200px]"
+            <button
               onClick={() => alert("Get started")}
+              className="
+    min-w-[200px]
+    px-6 py-3 text-base
+    bg-slate-800 text-white
+    font-medium rounded-lg
+    transition-all duration-200 ease-in-out
+    transform active:scale-95
+    hover:bg-slate-900
+    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+  "
             >
               Get started
-            </Button>
+            </button>
           </div>
 
           <p className="mt-6 text-sm text-gray-400 font-light">
@@ -309,117 +316,7 @@ const HomeSection = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-black text-gray-300">
-        <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
-          {/* Top Section */}
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            {/* Brand Info */}
-            <div>
-              <h3 className="text-2xl font-light text-white mb-4">
-                Learning
-                <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text text-transparent font-medium">
-                  Vault
-                </span>
-              </h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Learn by building. Succeed by doing. Career-focused education
-                for the modern world.
-              </p>
-            </div>
-
-            {/* Navigation */}
-            <div>
-              <h4 className="text-white font-medium mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Programs
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h4 className="text-white font-medium mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    FAQs
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Student Stories
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h4 className="text-white font-medium mb-4">Stay Updated</h4>
-              <p className="text-gray-400 text-sm mb-4">
-                Get learning tips, career insights, and updates straight to your
-                inbox.
-              </p>
-              <form className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="w-full px-4 py-2 rounded-l-md bg-gray-800 text-sm border border-gray-700 focus:outline-none focus:border-blue-500"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md text-sm"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
-            <p>
-              © {new Date().getFullYear()} LearningVault. All rights reserved.
-            </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white">
-                Privacy Policy
-              </a>
-              <a href="#" className="hover:text-white">
-                Terms of Service
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 };

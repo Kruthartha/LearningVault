@@ -12,8 +12,7 @@ const Button = ({
   className = "",
   ...props
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
+  const [isHovered, setIsHovered] = useState(faw
   const sizeClasses = {
     small: "px-4 py-2 text-sm",
     medium: "px-6 py-3 text-base",
