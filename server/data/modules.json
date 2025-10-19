@@ -1,0 +1,17 @@
+[
+  {
+    "id": "html-basics",
+    "title": "HTML Basics",
+    "description": "Learn how to structure web pages with HTML."
+  },
+  {
+    "id": "css-basics",
+    "title": "CSS Basics",
+    "description": "Style your web pages beautifully with CSS."
+  },
+  {
+    "id": "js-basics",
+    "title": "JavaScript Basics",
+    "description": "Make your web pages interactive with JavaScript."
+  }
+]

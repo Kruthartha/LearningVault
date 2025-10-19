@@ -1,5 +1,5 @@
 exports.up = (pgm) => {
-  pgm.createType('coding_level', ['Beginner', 'Intermediate', 'Advanced']);
+  pgm.createType('learner_level', ['Beginner', 'Intermediate', 'Advanced']);
 
   pgm.createTable('users', {
     id: 'id',
@@ -32,8 +32,9 @@ exports.up = (pgm) => {
     id: 'id',
     user_id: { type: 'integer', unique: true, references: '"users"', onDelete: 'cascade' },
     learning_goals: { type: 'text' },
-    coding_experience: { type: 'coding_level' },
-    learning_track: { type: 'varchar(50)' },
+    learner_level: { type: 'learner_level' },
+    learning_path: { type: 'varchar(50)' },
+    current_track: {type: 'varchar(50)'},
     onboarding_completed: { type: 'boolean', default: false },
     created_at: { type: 'timestamp', default: pgm.func('current_timestamp') },
     updated_at: { type: 'timestamp', default: pgm.func('current_timestamp') }
@@ -44,5 +45,5 @@ exports.down = (pgm) => {
   pgm.dropTable('user_profiles');
   pgm.dropTable('refresh_tokens');
   pgm.dropTable('users');
-  pgm.dropType('coding_level');
+  pgm.dropType('learner_level');
 };

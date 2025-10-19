@@ -1,0 +1,195 @@
+[
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 1,
+    "block_position": 1,
+    "type": "heading",
+    "data": { "title": "What is HTML?" }
+  },
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 1,
+    "block_position": 2,
+    "type": "text",
+    "data": {
+      "content": "HTML (HyperText Markup Language) is the standard markup language for creating web pages."
+    }
+  },
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 1,
+    "block_position": 3,
+    "type": "key_takeaway",
+    "data": { "content": "HTML provides the structure for web pages." }
+  },
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 2,
+    "block_position": 1,
+    "type": "heading",
+    "data": { "title": "Basic HTML Page" }
+  },
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 2,
+    "block_position": 2,
+    "type": "code",
+    "data": {
+      "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>My First Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>"
+    }
+  },
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 2,
+    "block_position": 3,
+    "type": "key_takeaway",
+    "data": {
+      "content": "All HTML pages start with `<!DOCTYPE html>` and `<html>` tags."
+    }
+  },
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 2,
+    "block_position": 4,
+    "type": "image",
+    "data": {
+      "src": "https://images.unsplash.com/photo-1587620962725-abab7fe55159?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1631&q=80",
+      "alt": "A laptop showing HTML code on the screen.",
+      "caption": "HTML is the foundational language of the web."
+    }
+  },
+  {
+    "lesson_id": "lesson-html-intro",
+    "step_position": 3,
+    "block_position": 1,
+    "type": "quiz",
+    "data": {
+      "question": "What does HTML stand for?",
+      "options": [
+        "HyperText Markup Language",
+        "Home Tool Markup Language",
+        "HighText Machine Language"
+      ],
+      "correct_answer": "HyperText Markup Language"
+    }
+  },
+
+  {
+    "lesson_id": "lesson-html-tags",
+    "step_position": 1,
+    "block_position": 1,
+    "type": "heading",
+    "data": { "title": "HTML Tags Overview" }
+  },
+  {
+    "lesson_id": "lesson-html-tags",
+    "step_position": 1,
+    "block_position": 2,
+    "type": "text",
+    "data": {
+      "content": "Tags are the building blocks of HTML. Elements are created using opening and closing tags."
+    }
+  },
+  {
+    "lesson_id": "lesson-html-tags",
+    "step_position": 1,
+    "block_position": 3,
+    "type": "key_takeaway",
+    "data": { "content": "Every HTML element is defined by tags." }
+  },
+  {
+    "lesson_id": "lesson-html-tags",
+    "step_position": 2,
+    "block_position": 1,
+    "type": "heading",
+    "data": { "title": "Common Tags" }
+  },
+  {
+    "lesson_id": "lesson-html-tags",
+    "step_position": 2,
+    "block_position": 2,
+    "type": "code",
+    "data": {
+      "code": "<h1>Heading</h1>\n<p>Paragraph</p>\n<a href='https://example.com'>Link</a>"
+    }
+  },
+  {
+    "lesson_id": "lesson-html-tags",
+    "step_position": 2,
+    "block_position": 3,
+    "type": "key_takeaway",
+    "data": {
+      "content": "Use semantic tags for better structure and accessibility."
+    }
+  },
+  {
+    "lesson_id": "lesson-html-tags",
+    "step_position": 3,
+    "block_position": 1,
+    "type": "quiz",
+    "data": {
+      "question": "Which tag is used for a hyperlink?",
+      "options": ["<link>", "<a>", "<href>"],
+      "correct_answer": "<a>"
+    }
+  },
+
+  {
+    "lesson_id": "lesson-html-links",
+    "step_position": 1,
+    "block_position": 1,
+    "type": "heading",
+    "data": { "title": "Links and Images" }
+  },
+  {
+    "lesson_id": "lesson-html-links",
+    "step_position": 1,
+    "block_position": 2,
+    "type": "text",
+    "data": {
+      "content": "Learn how to create clickable links and display images in HTML."
+    }
+  },
+  {
+    "lesson_id": "lesson-html-links",
+    "step_position": 1,
+    "block_position": 3,
+    "type": "key_takeaway",
+    "data": { "content": "Links use `<a>` and images use `<img>`." }
+  },
+  {
+    "lesson_id": "lesson-html-links",
+    "step_position": 2,
+    "block_position": 1,
+    "type": "heading",
+    "data": { "title": "Adding Links & Images" }
+  },
+  {
+    "lesson_id": "lesson-html-links",
+    "step_position": 2,
+    "block_position": 2,
+    "type": "code",
+    "data": {
+      "code": "<a href='https://example.com'>Visit Example</a>\n<img src='image.jpg' alt='Description'>"
+    }
+  },
+  {
+    "lesson_id": "lesson-html-links",
+    "step_position": 2,
+    "block_position": 3,
+    "type": "key_takeaway",
+    "data": { "content": "Always include `alt` text for images." }
+  },
+
+  {
+    "lesson_id": "lesson-html-links",
+    "step_position": 3,
+    "block_position": 1,
+    "type": "quiz",
+    "data": {
+      "question": "Which attribute specifies the URL of a link?",
+      "options": ["href", "src", "link"],
+      "correct_answer": "href"
+    }
+  }
+]

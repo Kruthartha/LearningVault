@@ -1,0 +1,17 @@
+[
+  {
+    "id": "lesson-js-vars",
+    "title": "Variables in JS",
+    "content": "Learn how to declare variables in JavaScript"
+  },
+  {
+    "id": "lesson-react-state",
+    "title": "React State",
+    "content": "Manage state in React components"
+  },
+  {
+    "id": "lesson-node-routing",
+    "title": "Node Routing",
+    "content": "Learn routing with Express"
+  }
+]

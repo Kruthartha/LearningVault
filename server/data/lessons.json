@@ -1,0 +1,49 @@
+[
+  {
+    "id": "lesson-html-intro",
+    "title": "What is HTML?",
+    "content": "Introduction to HTML and its purpose in the web."
+  },
+  {
+    "id": "lesson-html-tags",
+    "title": "HTML Tags",
+    "content": "Learn about HTML tags, elements, and structure."
+  },
+  {
+    "id": "lesson-html-links",
+    "title": "Links & Images",
+    "content": "How to add links and images to your page."
+  },
+
+  {
+    "id": "lesson-css-intro",
+    "title": "Introduction to CSS",
+    "content": "Understand how CSS styles your HTML content."
+  },
+  {
+    "id": "lesson-css-boxmodel",
+    "title": "Box Model",
+    "content": "Learn about margins, borders, padding, and content."
+  },
+  {
+    "id": "lesson-css-flexbox",
+    "title": "Flexbox & Grid",
+    "content": "Modern CSS layout systems for responsive design."
+  },
+
+  {
+    "id": "lesson-js-vars",
+    "title": "Variables & Data Types",
+    "content": "Understand how to store and manipulate data in JS."
+  },
+  {
+    "id": "lesson-js-functions",
+    "title": "Functions",
+    "content": "Learn to group code into reusable functions."
+  },
+  {
+    "id": "lesson-js-dom",
+    "title": "DOM Manipulation",
+    "content": "Access and modify web pages using JavaScript."
+  }
+]

@@ -1,0 +1,5 @@
+[
+  { "course_id": "web-foundations", "module_id": "html-basics", "position": 1 },
+  { "course_id": "web-foundations", "module_id": "css-basics", "position": 2 },
+  { "course_id": "web-foundations", "module_id": "js-basics", "position": 3 }
+]

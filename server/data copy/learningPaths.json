@@ -1,0 +1,37 @@
+[
+  {
+    "id": "fullstack-mern",
+    "title": "Full-Stack Development - MERN",
+    "track_name": "Full-Stack",
+    "track_type": "Professional",
+    "duration": "6-9 months",
+    "color": "blue",
+    "popular": true,
+    "locked": false,
+    "description": "Become a versatile developer by mastering both frontend and backend technologies. Build complete web applications using React, Node.js, databases, and APls from scratch.",
+    "skills": [
+      "React",
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "SQL",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "RESTful Services",
+      "Authentication & Authorization"
+    ]
+  },
+  {
+    "id": "aiml-python",
+    "title": "AI & ML with Python",
+    "track_name": "AI & ML",
+    "track_type": "Professional",
+    "duration": "4-6 months",
+    "color": "green",
+    "popular": false,
+    "locked": true,
+    "description": "Master AI and ML concepts using Python",
+    "skills": ["Python", "Machine Learning", "AI"]
+  }
+]

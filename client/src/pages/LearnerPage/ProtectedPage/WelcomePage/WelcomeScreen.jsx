@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BookOpen,
   Award,
@@ -7,8 +7,10 @@ import {
   Play,
   CheckCircle,
   Star,
+  Clock,
   ArrowRight,
   Sparkles,
+  Shield,
   Rocket,
   Trophy,
   Code,
@@ -24,52 +26,59 @@ const WelcomeScreen = () => {
   const [selectedTrack, setSelectedTrack] = useState("");
   const [selectedGoals, setSelectedGoals] = useState([]);
   const [experience, setExperience] = useState("");
-
+  const [learningTracks, setLearningTracks] = useState([]);
+  const [loadingTracks, setLoadingTracks] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
+  const trackIconMap = {
+    "fullstack-mern": Globe,
+    "frontend-development": Code,
+    "backend-nodejs-pg": Play,
+    "aiml-specialization": Brain,
+    "data-science-analytics": Lightbulb,
+    "mobile-dev-react-native": BookOpen,
+    "devops-cloud": Rocket,
+    "cybersecurity-essentials": Shield, // You can import Shield from lucide-react
+  };
+
   if (!user) return <p>No user found!</p>;
 
-  const learningTracks = [
-{
-  id: "fullstack",
-  title: "Full-Stack Development",
-  description: "Become a versatile developer by mastering both frontend and backend technologies. Build complete web applications using React, Node.js, databases, and APIs from scratch.",
-  icon: Globe,
-  duration: "6-9 months",
-  skills: [
-    "React", 
-    "Node.js", 
-    "Express.js", 
-    "MongoDB", 
-    "SQL", 
-    "HTML", 
-    "CSS", 
-    "JavaScript", 
-    "RESTful Services", 
-    "Authentication & Authorization", 
-  ],
-  color: "blue",
-  popular: true,
-},
-    {
-      id: "aiml",
-      title: "Artificial Intelligence and Machine Learning",
-      description:
-        "Master AI and ML concepts while building intelligent applications using popular frameworks like TensorFlow, PyTorch, and Scikit-learn.",
-      icon: Sparkles,
-      duration: "9-12 months",
-      skills: [
-        "Python3",
-        "TensorFlow",
-        "PyTorch",
-        "Scikit-learn",
-        "Data Analysis",
-      ],
-      color: "blue",
-      locked: "true",
-    },
-  ];
+  useEffect(() => {
+    const fetchTracks = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:3000/api/course/learning-tracks/"
+        );
+        const data = await res.json();
+
+        // Ensure data is an array
+        const tracksArray = Array.isArray(data) ? data : [data];
+
+        // Map API structure to UI structure
+        const mappedTracks = tracksArray.map((track) => ({
+          id: track.id,
+          title: track.title,
+          description: track.description,
+          duration: track.duration,
+          skills: track.skills,
+          color: track.color || "blue", // fallback color
+          popular: track.popular || false,
+          locked: track.locked || false,
+          icon: trackIconMap[track.id] || Globe, // map by track.id or fallback
+        }));
+
+        setLearningTracks(mappedTracks);
+      } catch (err) {
+        console.error("Error fetching tracks:", err);
+      } finally {
+        setLoadingTracks(false);
+      }
+    };
+
+    fetchTracks();
+  }, []);
 
   const learningGoals = [
     { id: "career", label: "Switch to a tech career", icon: Rocket },
@@ -146,7 +155,7 @@ const WelcomeScreen = () => {
           <div
             className={`w-5 h-5 rounded-full border-2 transition-all ${
               isSelected && !isLocked
-                ? `bg-${track.color}-500 border-${track.color}-500`
+                ? `bg-blue-500 border-blue-500`
                 : "border-gray-300"
             }`}
           >
@@ -166,7 +175,8 @@ const WelcomeScreen = () => {
         <p className="text-sm text-gray-600 mb-4">{track.description}</p>
 
         <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
-          <span>⏱️ {track.duration}</span>
+          <Clock className="w-4 h-4" />
+          <span> {track.duration}</span>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -441,49 +451,49 @@ const WelcomeScreen = () => {
     }
   };
 
-const handleGetStarted = async () => {
-  if (!user) return;
+  const handleGetStarted = async () => {
+    if (!user) return;
 
-  // Prepare the payload
-  const payload = {
-    learning_goals: selectedGoals,        // array of selected goal ids
-    coding_experience: experience,        // string like "beginner"
-    learning_track: selectedTrack         // string like "fullstack"
-  };
+    setIsLoading(true);
 
-  try {
-    const token = localStorage.getItem("accessToken");
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/user/onboarding`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    const payload = {
+      learning_goals: selectedGoals,
+      learner_level: experience,
+      learning_path: selectedTrack,
+    };
 
-    const data = await res.json();
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/user/onboarding`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
-    if (res.ok) {
-      // Onboarding successful
-      localStorage.setItem("welcomeSeen", "true");
+      const data = await res.json();
 
-      // Optionally update local user profile info
-      if (data.onboarding) {
-        localStorage.setItem("userProfile", JSON.stringify(data.onboarding));
+      if (res.ok) {
+        localStorage.setItem("welcomeSeen", "true");
+        if (data.onboarding) {
+          localStorage.setItem("userProfile", JSON.stringify(data.onboarding));
+        }
+        window.location.href = "/dashboard";
+      } else {
+        alert(`Error: ${data.message}`);
       }
-
-      // Redirect to dashboard
-      window.location.href = "/dashboard";
-    } else {
-      console.error("Onboarding failed:", data.message);
-      alert(`Error: ${data.message}`);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    console.error("Error submitting onboarding:", err);
-    alert("Something went wrong. Please try again.");
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/30">
@@ -544,9 +554,17 @@ const handleGetStarted = async () => {
           {currentStep === steps.length - 1 ? (
             <button
               onClick={handleGetStarted}
-              className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+              disabled={isLoading}
+              className="flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium shadow-sm transition-all duration-200 hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Start Learning 
+              {isLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Starting...</span>
+                </div>
+              ) : (
+                "Start Learning"
+              )}
             </button>
           ) : (
             <button

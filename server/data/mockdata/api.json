@@ -1,0 +1,41 @@
+{
+  "type": "lesson",
+  "id": "lesson-html-intro",
+  "title": "What is HTML?",
+  "completed": true,
+  "averageTime": 4,
+  "steps": [
+    [
+      {
+        "type": "heading",
+        "title": "What is HTML?"
+      },
+      {
+        "type": "text",
+        "content": "HTML (HyperText Markup Language) is the standard markup language for creating web pages."
+      },
+      {
+        "type": "keyTakeaway",
+        "content": "HTML provides the structure for web pages."
+      },
+      {
+        "type": "code",
+        "lang": "javascript",
+        "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>My First Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>"
+      }
+    ],
+    [
+      {
+        "type": "quiz",
+        "question": "What does HTML stand for?",
+        "options": [
+          "HyperText Markup Language",
+          "Home Tool Markup Language",
+          "HighText Machine Language"
+        ],
+        "correctAnswer": "HyperText Markup Language",
+        "hint": null
+      }
+    ]
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "lesson_id": "lesson-js-vars",
+    "step_position": 1,
+    "block_position": 1,
+    "type": "text",
+    "title": "Introduction to Variables",
+    "content": "In JavaScript, variables are used to store data values. You can declare them using `var`, `let`, or `const`.",
+    "code": null,
+    "key_takeaway": "Use `let` and `const` for modern JavaScript code.",
+    "prompt": null,
+    "starter_code": null,
+    "hint": null,
+    "question": null,
+    "options": null,
+    "correct_answer": null
+  },
+  {
+    "lesson_id": "lesson-js-vars",
+    "step_position": 1,
+    "block_position": 2,
+    "type": "code",
+    "title": "Declaring Variables",
+    "content": "Here’s how to declare variables using `let` and `const`.",
+    "code": "let name = 'John';\nconst age = 25;",
+    "key_takeaway": "Variables declared with `const` cannot be reassigned.",
+    "prompt": "Try declaring your own variables below.",
+    "starter_code": "let city = '';",
+    "hint": "Remember to use `let` for variables that can change.",
+    "question": null,
+    "options": null,
+    "correct_answer": null
+  },
+  {
+    "lesson_id": "lesson-js-vars",
+    "step_position": 2,
+    "block_position": 1,
+    "type": "quiz",
+    "title": "Quiz: Variable Basics",
+    "content": "Test your understanding of variable declarations.",
+    "code": null,
+    "key_takeaway": null,
+    "prompt": "Which keyword is used to declare a constant variable in JavaScript?",
+    "starter_code": null,
+    "hint": "It's introduced in ES6 and prevents reassignment.",
+    "question": "Which keyword declares a constant?",
+    "options": ["let", "var", "const", "define"],
+    "correct_answer": "const"
+  }
+]

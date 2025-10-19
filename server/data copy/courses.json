@@ -1,0 +1,22 @@
+[
+  {
+    "id": "js-basics",
+    "title": "JavaScript Basics",
+    "description": "Learn JS fundamentals"
+  },
+  {
+    "id": "react-intro",
+    "title": "React Introduction",
+    "description": "Learn React basics"
+  },
+  {
+    "id": "node-express",
+    "title": "Node & Express",
+    "description": "Backend with Node.js"
+  },
+  {
+    "id": "ml-basics",
+    "title": "Machine Learning Basics",
+    "description": "Introduction to ML"
+  }
+]

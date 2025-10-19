@@ -1,0 +1,13 @@
+[
+  { "module_id": "html-basics", "lesson_id": "lesson-html-intro", "position": 1 },
+  { "module_id": "html-basics", "lesson_id": "lesson-html-tags", "position": 2 },
+  { "module_id": "html-basics", "lesson_id": "lesson-html-links", "position": 3 },
+
+  { "module_id": "css-basics", "lesson_id": "lesson-css-intro", "position": 1 },
+  { "module_id": "css-basics", "lesson_id": "lesson-css-boxmodel", "position": 2 },
+  { "module_id": "css-basics", "lesson_id": "lesson-css-flexbox", "position": 3 },
+
+  { "module_id": "js-basics", "lesson_id": "lesson-js-vars", "position": 1 },
+  { "module_id": "js-basics", "lesson_id": "lesson-js-functions", "position": 2 },
+  { "module_id": "js-basics", "lesson_id": "lesson-js-dom", "position": 3 }
+]

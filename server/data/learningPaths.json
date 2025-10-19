@@ -1,0 +1,44 @@
+[
+  {
+    "id": "fullstack-mern",
+    "title": "Full-Stack Development - MERN",
+    "track_name": "Full-Stack",
+    "track_type": "Professional",
+    "duration": "6-9 months",
+    "color": "blue",
+    "popular": true,
+    "locked": false,
+    "description": "Become a versatile developer by mastering both frontend and backend technologies. Build complete web applications using React, Node.js, databases, and APls from scratch.",
+    "skills": [
+      "React",
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "SQL",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "RESTful Services",
+      "Authentication & Authorization"
+    ]
+  },
+  {
+    "id": "web-dev-foundations",
+    "title": "Web Development Foundations",
+    "track_name": "Full Stack",
+    "track_type": "Professional",
+    "duration": "3-4 months",
+    "color": "blue",
+    "popular": true,
+    "locked": false,
+    "description": "Start your journey into web development by mastering HTML, CSS, and JavaScript fundamentals.",
+    "skills": [
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "Responsive Design",
+      "DOM Manipulation"
+    ]
+  }
+
+]

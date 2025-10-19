@@ -1,0 +1,16 @@
+[
+  {
+    "id": "web-foundations",
+    "title": "Web Foundations",
+    "description": "Learn the core building blocks of the web — HTML, CSS, and JavaScript. By the end, you'll build your first responsive website.",
+    "learning_objectives": [
+      "Understand the structure of web pages using HTML.",
+      "Style web pages using CSS, including layouts, colors, and typography.",
+      "Add interactivity to web pages using JavaScript.",
+      "Create responsive designs that work across devices.",
+      "Use developer tools to debug and inspect web pages.",
+      "Understand the relationship between HTML, CSS, and JavaScript in modern web development.",
+      "Build a small, functional website combining all three technologies."
+    ]
+  }
+]
