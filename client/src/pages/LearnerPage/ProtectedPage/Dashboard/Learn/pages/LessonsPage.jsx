@@ -270,46 +270,6 @@ const StepRenderer = ({ step, state, callbacks }) => {
         </div>
       );
 
-    case "exercise":
-      return (
-        <div className="mb-8">
-          <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400">
-              <Play className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="mb-1 text-sm font-medium text-green-600 dark:text-green-400">
-                Coding Exercise
-              </div>
-              <h2 className="text-2xl font-light text-black dark:text-white md:text-3xl">
-                {step.prompt}
-              </h2>
-            </div>
-          </div>
-          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-[#0d1117]">
-            <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-2">
-                  <div className="h-3 w-3 rounded-full bg-red-400"></div>
-                  <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
-                  <div className="h-3 w-3 rounded-full bg-green-400"></div>
-                </div>
-                <span className="ml-4 text-sm font-medium text-gray-600 dark:text-gray-400">
-                  JavaScript
-                </span>
-              </div>
-            </div>
-            <div className="bg-[#011627]">
-              <CodeEditor
-                value={userCode}
-                onChange={setUserCode}
-                height="44vh"
-              />
-            </div>
-          </div>
-        </div>
-      );
-
     default:
       return null;
   }
@@ -352,10 +312,9 @@ export default function LessonPage() {
             `${API_URL}/user/progress/${pathSlug}/${courseSlug}/${lessonId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           ),
-          fetch(
-            `${API_URL}/user/progress/${pathSlug}/${courseSlug}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          ),
+          fetch(`${API_URL}/user/progress/${pathSlug}/${courseSlug}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         if (!lessonResponse.ok) throw new Error("Failed to fetch lesson data.");
