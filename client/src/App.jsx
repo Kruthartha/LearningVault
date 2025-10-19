@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./pages/LearnerPage/ProtectedPage/ProtectedRoute";
+import ThemedPageLoader from "./pages/PublicPage/LoaderPage/PageLoader";
 
 // Lazy-loaded pages
 const HomePage = lazy(() => import("./pages/PublicPage/HomePage/Homepage"));
@@ -89,7 +90,7 @@ const PageUnderConstructionPage = lazy(() =>
 function App() {
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<ThemedPageLoader/>}>
         <Routes>
           {/* Public Pages */}
           <Route path="/" element={<HomePage />} />
