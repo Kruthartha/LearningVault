@@ -21,6 +21,8 @@ import {
   Lightbulb,
 } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const WelcomeScreen = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTrack, setSelectedTrack] = useState("");
@@ -49,7 +51,7 @@ const WelcomeScreen = () => {
     const fetchTracks = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3000/api/course/learning-tracks/"
+          `${API_URL}/course/learning-tracks/`
         );
         const data = await res.json();
 
