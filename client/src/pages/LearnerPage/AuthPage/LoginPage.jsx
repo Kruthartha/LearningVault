@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // ✅ import navigate
 
-
 // const API_URL = process.env.REACT_APP_API_URL;
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -12,7 +11,7 @@ const LoginPage = () => {
     rememberMe: false,
   });
 
-    useEffect(() => {
+  useEffect(() => {
     document.title = "Login - LearningVault";
   }, []);
 
@@ -31,6 +30,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form Data Before Submit:", formData);
     setIsLoading(true);
 
     try {
@@ -52,7 +52,6 @@ const LoginPage = () => {
       // Save accessToken
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
-
 
       console.log("User:", data.user);
 
