@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 // --- 1. ProgressBar Component (Themed) ---
 const ProgressBar = ({ progress }) => {
   const getColorClass = (p) => {
@@ -183,7 +185,7 @@ export default function CoursePage() {
       }
       try {
         const response = await fetch(
-          `http://localhost:3000/api/user/progress/${pathSlug}/${courseSlug}`,
+          `${API_URL}/user/progress/${pathSlug}/${courseSlug}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

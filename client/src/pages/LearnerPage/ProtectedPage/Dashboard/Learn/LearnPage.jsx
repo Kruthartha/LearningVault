@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom";
 
 // --- Reusable UI Components (Themed) ---
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const ProgressBar = ({ progress }) => (
   // Updated: Dark mode background for the progress track
   <div className="w-full h-2 overflow-hidden rounded-full bg-neutral-200/70 dark:bg-gray-700">
@@ -134,10 +136,10 @@ export default function LearnPage() {
       }
       try {
         const [progressResponse, streakResponse] = await Promise.all([
-          fetch("http://localhost:3000/api/user/progress", {
+          fetch(`${API_URL}/user/progress`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch("http://localhost:3000/api/user/streak", {
+          fetch(`${API_URL}/user/streak`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 // --- Reusable UI Components (Themed) ---
+const API_URL = import.meta.env.VITE_API_URL;
 
 const StatCard = ({ icon, label, value }) => (
   <div className="flex items-center gap-4 rounded-2xl border bg-white p-4 dark:bg-[#161b22] border-neutral-200/80 dark:border-[#30363d]">
@@ -195,7 +196,7 @@ const Practice = () => {
           throw new Error("Authentication token not found. Please log in.");
         }
 
-        const response = await fetch("http://localhost:3000/api/problems/", {
+        const response = await fetch(`${API_URL}/problems/`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`, // Send the JWT token

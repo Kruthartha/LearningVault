@@ -25,6 +25,8 @@ import CodeEditor from "../components/CodeEditor";
 import { LayoutContext } from "../../../Context/LayoutContext";
 import CompletionScreen from "../components/CompletionScreen";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 // --- Themed Markdown Components ---
 const markdownComponents = {
   code: ({ node, inline, className, children, ...props }) => {
@@ -347,11 +349,11 @@ export default function LessonPage() {
       try {
         const [lessonResponse, courseResponse] = await Promise.all([
           fetch(
-            `http://localhost:3000/api/user/progress/${pathSlug}/${courseSlug}/${lessonId}`,
+            `${API_URL}/user/progress/${pathSlug}/${courseSlug}/${lessonId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           ),
           fetch(
-            `http://localhost:3000/api/user/progress/${pathSlug}/${courseSlug}`,
+            `${API_URL}/user/progress/${pathSlug}/${courseSlug}`,
             { headers: { Authorization: `Bearer ${token}` } }
           ),
         ]);

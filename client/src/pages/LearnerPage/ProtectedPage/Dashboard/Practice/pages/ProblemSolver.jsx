@@ -33,7 +33,9 @@ import {
   Award,
 } from "lucide-react";
 
-const EXECUTION_API_URL = "http://localhost:3000/api/runtime/execute/";
+const API_URL = import.meta.env.VITE_API_URL;
+
+const EXECUTION_API_URL = `${API_URL}/runtime/execute/`;
 
 // --- Helper Functions (No UI changes) ---
 const createTestRunnerCode = (userCode, testCases, functionName) => {
@@ -126,7 +128,7 @@ const ProblemSolver = ({ onProblemComplete }) => {
 
       try {
         const response = await fetch(
-          `http://localhost:3000/api/problems/${problemSlug}`,
+          `${API_URL}/problems/${problemSlug}`,
           {
             method: "GET",
             headers: {

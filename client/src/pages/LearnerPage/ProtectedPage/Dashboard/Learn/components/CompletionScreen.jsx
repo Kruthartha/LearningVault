@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 
 // --- Reusable Animated Components ---
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const AnimatedStat = ({ value, isTime = false }) => {
   const spring = useSpring(0, { mass: 0.8, stiffness: 100, damping: 15 });
   React.useEffect(() => {
@@ -121,7 +123,7 @@ const CompletionScreen = ({
         }
 
         // 2. Construct the dynamic API URL from props
-        const apiUrl = `http://localhost:3000/api/user/progress/${pathSlug}/${courseSlug}/${lesson.id}/complete`;
+        const apiUrl = `${API_URL}/user/progress/${pathSlug}/${courseSlug}/${lesson.id}/complete`;
 
         // 3. Make the POST request
         const response = await fetch(apiUrl, {

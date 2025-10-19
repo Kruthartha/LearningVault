@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 // --- Reusable UI Component (Themed) ---
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ProgressBar = ({ progress }) => {
   const getColorClass = (p) => {
@@ -169,7 +170,7 @@ export default function LearningPathPage() {
       }
       try {
         const response = await fetch(
-          `http://localhost:3000/api/user/progress/${pathSlug}`,
+          `${API_URL}/user/progress/${pathSlug}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
