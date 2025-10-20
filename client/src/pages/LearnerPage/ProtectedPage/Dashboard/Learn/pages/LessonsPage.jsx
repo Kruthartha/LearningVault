@@ -1,6 +1,14 @@
-import React, { useState, useEffect, useMemo, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useContext,
+  useRef,
+  lazy,
+  Suspense, // <-- Added lazy/Suspense from your previous version
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
+// import ReactMarkdown from "react-markdown"; // Lazy loaded
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import {
@@ -20,14 +28,102 @@ import {
   Clipboard,
 } from "lucide-react";
 
-import CodeBlock from "../components/CodeBlock";
+// import CodeBlock from "../components/CodeBlock"; // Lazy loaded
 import { LayoutContext } from "../../../Context/LayoutContext";
-import CompletionScreen from "../components/CompletionScreen";
+// import CompletionScreen from "../components/CompletionScreen"; // Lazy loaded
+
+// --- LAZY-LOADED COMPONENTS ---
+// (From your previous file structure)
+const CodeBlock = lazy(() => import("../components/CodeBlock"));
+const CompletionScreen = lazy(() => import("../components/CompletionScreen"));
+const ReactMarkdown = lazy(() => import("react-markdown"));
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// --- FALLBACKS FOR LAZY COMPONENTS ---
+// (From your previous file structure)
+const MarkdownFallback = () => (
+  <div className="space-y-3 p-2">
+    <div className="h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+    <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+  </div>
+);
+
+const CodeBlockFallback = () => (
+  <div className="min-h-[100px] animate-pulse rounded-lg bg-slate-800 p-4">
+    <div className="h-4 w-3/4 rounded bg-slate-700"></div>
+    <div className="mt-2 h-4 w-1/2 rounded bg-slate-700"></div>
+  </div>
+);
+
+const FullPageLoader = ({ text = "Loading..." }) => (
+  <div className="flex h-screen items-center justify-center dark:bg-[#0d1117]">
+    <p className="text-xl text-gray-600 dark:text-gray-300">{text}</p>
+  </div>
+);
+
+// --- SKELETON LOADER FOR THE PAGE ---
+
+const LessonPageSkeleton = () => (
+  <div className="flex min-h-screen animate-pulse flex-col bg-gray-50 dark:bg-[#0d1117]">
+    {/* Header Skeleton */}
+    <header className="sticky top-0 z-10 w-full border-b border-gray-100 bg-white dark:border-[#30363d] dark:bg-[#161b22]">
+      <div className="mx-auto flex max-w-6xl items-center justify-between p-4 md:p-6">
+        {/* X Button */}
+        <div className="h-10 w-10 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+        {/* Progress Area */}
+        <div className="mx-6 flex-1">
+          <div className="mb-3 flex items-center gap-4">
+            <div className="h-6 w-1/2 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-4 w-16 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-4 w-16 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+          <div className="mb-2 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+        {/* Hint Button */}
+        <div className="h-10 w-24 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+      </div>
+    </header>
+
+    {/* Main Content Skeleton */}
+    <main className="flex w-full flex-1 flex-col items-center">
+      <div className="flex w-full max-w-4xl flex-1 flex-col justify-between">
+        <div className="px-4 py-8 md:py-12">
+          {/* Heading Block Skeleton */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 flex-shrink-0 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+              <div className="w-full space-y-2">
+                <div className="h-4 w-24 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+                <div className="h-8 w-3/4 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+              </div>
+            </div>
+          </div>
+          {/* Text Block Skeleton */}
+          <div className="space-y-3">
+            <div className="h-4 w-full rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-4 w-full rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            <div className="h-4 w-5/6 rounded-md bg-gray-200 dark:bg-gray-700"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    {/* Footer Skeleton */}
+    <footer className="sticky bottom-0 w-full border-t border-gray-100 bg-white dark:border-[#30363d] dark:bg-[#161b22]">
+      <div className="mx-auto max-w-6xl p-6 md:p-8">
+        <div className="flex items-center justify-between">
+          <div className="h-12 w-32 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+          <div className="h-12 w-36 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+      </div>
+    </footer>
+  </div>
+);
+
 // --- Themed Markdown Components ---
 const markdownComponents = {
+  // ... (no changes)
   code: ({ node, inline, className, children, ...props }) => {
     if (inline) {
       return (
@@ -39,7 +135,6 @@ const markdownComponents = {
         </code>
       );
     }
-    // Block code is handled by the 'code' step type
     return <code {...props}>{children}</code>;
   },
   table: ({ children }) => (
@@ -77,6 +172,7 @@ const markdownComponents = {
 
 // --- Themed Step Renderer ---
 const StepRenderer = ({ step, state, callbacks }) => {
+  // ... (no changes to this component)
   const { selectedAnswer, checkStatus, userCode } = state;
   const { setSelectedAnswer, setUserCode } = callbacks;
   const [isCopied, setIsCopied] = useState(false);
@@ -112,13 +208,15 @@ const StepRenderer = ({ step, state, callbacks }) => {
     case "text":
       return (
         <div className="mb-6 max-w-none font-light leading-relaxed dark:text-gray-300">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={markdownComponents}
-          >
-            {step.content}
-          </ReactMarkdown>
+          <Suspense fallback={<MarkdownFallback />}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
+              components={markdownComponents}
+            >
+              {step.content}
+            </ReactMarkdown>
+          </Suspense>
         </div>
       );
 
@@ -134,13 +232,15 @@ const StepRenderer = ({ step, state, callbacks }) => {
                 Key Takeaway
               </h3>
               <div className="text-sm font-light text-blue-800 dark:text-blue-300">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw]}
-                  components={markdownComponents}
-                >
-                  {step.content}
-                </ReactMarkdown>
+                <Suspense fallback={<MarkdownFallback />}>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={markdownComponents}
+                  >
+                    {step.content}
+                  </ReactMarkdown>
+                </Suspense>
               </div>
             </div>
           </div>
@@ -179,10 +279,12 @@ const StepRenderer = ({ step, state, callbacks }) => {
                 </button>
               </div>
             </div>
-            <CodeBlock
-              code={step.code?.trim() || ""}
-              language={step.lang || "javascript"}
-            />
+            <Suspense fallback={<CodeBlockFallback />}>
+              <CodeBlock
+                code={step.code?.trim() || ""}
+                language={step.lang || "javascript"}
+              />
+            </Suspense>
           </div>
         </div>
       );
@@ -292,10 +394,12 @@ export default function LessonPage() {
   const [userCode, setUserCode] = useState("");
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
   const intervalRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false); // <-- For fade-in
 
   useEffect(() => {
     const fetchAllData = async () => {
       setIsLoading(true);
+      setIsVisible(false); // <-- Reset visibility on new load
       setError(null);
       const token = localStorage.getItem("accessToken");
 
@@ -337,6 +441,13 @@ export default function LessonPage() {
     setIsLessonCompleted(false);
     setCurrentStepIndex(0);
   }, [lessonId]);
+
+  // Effect for fade-in
+  useEffect(() => {
+    if (!isLoading) {
+      setIsVisible(true);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     setIsFullScreen(true);
@@ -440,19 +551,19 @@ export default function LessonPage() {
     return allLessons[currentLessonIndex + 1] || null;
   };
 
+  // --- RENDER LOGIC ---
+
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center dark:bg-[#0d1117]">
-        <p className="text-xl text-gray-600 dark:text-gray-300">
-          Loading Lesson...
-        </p>
-      </div>
-    );
+    return <LessonPageSkeleton />;
   }
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center dark:bg-[#0d1117]">
+      <div
+        className={`flex h-screen items-center justify-center dark:bg-[#0d1117] transition-opacity duration-500 ease-in-out ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <p className="text-xl text-red-500">Error: {error}</p>
       </div>
     );
@@ -460,7 +571,11 @@ export default function LessonPage() {
 
   if (!lesson || !currentPageBlocks) {
     return (
-      <div className="flex h-screen items-center justify-center dark:bg-[#0d1117]">
+      <div
+        className={`flex h-screen items-center justify-center dark:bg-[#0d1117] transition-opacity duration-500 ease-in-out ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <p className="text-xl text-gray-600 dark:text-gray-300">
           Lesson content not found.
         </p>
@@ -470,19 +585,32 @@ export default function LessonPage() {
 
   if (isLessonCompleted) {
     return (
-      <CompletionScreen
-        lesson={lesson}
-        timeSpent={timeSpent}
-        nextLesson={findNextLesson()}
-        pathSlug={pathSlug}
-        courseSlug={courseSlug}
-        onFinish={handleFinishLesson}
-      />
+      <div
+        className={`transition-opacity duration-500 ease-in-out ${
+          // This will be visible immediately as !isLoading is already true
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <Suspense fallback={<FullPageLoader text="Loading Results..." />}>
+          <CompletionScreen
+            lesson={lesson}
+            timeSpent={timeSpent}
+            nextLesson={findNextLesson()}
+            pathSlug={pathSlug}
+            courseSlug={courseSlug}
+            onFinish={handleFinishLesson}
+          />
+        </Suspense>
+      </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-[#0d1117]">
+    <div
+      className={`flex min-h-screen flex-col bg-gray-50 dark:bg-[#0d1117] transition-opacity duration-500 ease-in-out ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <header className="sticky top-0 z-10 w-full border-b border-gray-100 bg-white dark:border-[#30363d] dark:bg-[#161b22]">
         <div className="mx-auto flex max-w-6xl items-center justify-between p-4 md:p-6">
           <button
