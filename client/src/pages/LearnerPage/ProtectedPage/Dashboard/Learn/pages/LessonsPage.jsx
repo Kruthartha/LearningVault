@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 
 import CodeBlock from "../components/CodeBlock";
-import CodeEditor from "../components/CodeEditor";
 import { LayoutContext } from "../../../Context/LayoutContext";
 import CompletionScreen from "../components/CompletionScreen";
 

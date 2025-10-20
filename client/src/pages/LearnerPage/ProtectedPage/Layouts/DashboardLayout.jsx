@@ -69,10 +69,6 @@ const DashboardLayout = () => {
     fetchProfile();
   }, []);
 
-  const [notifications, setNotifications] = useState([
-    // ... notifications data
-  ]);
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     setMobileMenuOpen(false);
