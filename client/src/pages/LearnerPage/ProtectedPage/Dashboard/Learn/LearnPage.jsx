@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+// --- Skeleton Loader Components ---
 
 const RecommendationCardSkeleton = () => (
   <div className="p-6 transition-all border rounded-2xl bg-white border-neutral-200/80 dark:bg-[#0e1013] dark:border-[#30363d]">
@@ -186,6 +187,14 @@ export default function LearnPage() {
   const [currentCourse, setCurrentCourse] = useState(null);
   const [pathSlug, setPathSlug] = useState(null);
   const [streakData, setStreakData] = useState({ current_streak: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // When loading is finished, trigger the fade-in
+    if (!isLoading) {
+      setIsVisible(true);
+    }
+  }, [isLoading]);
 
   const recommendations = [
     {
@@ -204,7 +213,7 @@ export default function LearnPage() {
     },
   ];
 
-  // --- Data fetching logic remains the same ---
+  // --- Data fetching logic ---
   useEffect(() => {
     const fetchAllData = async () => {
       const token = localStorage.getItem("accessToken");
@@ -214,6 +223,9 @@ export default function LearnPage() {
         return;
       }
       try {
+        // Simulate a 2-second load time as requested
+        // await new Promise(resolve => setTimeout(resolve, 2000));
+
         const [progressResponse, streakResponse] = await Promise.all([
           fetch(`${API_URL}/user/progress`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -238,6 +250,8 @@ export default function LearnPage() {
         const pathData = progressData[0];
         if (!pathData || !pathData.courses || pathData.courses.length === 0) {
           setInProgress([]);
+          // Set to null to trigger the "No learning progress" message
+          setCurrentCourse(null);
           return;
         }
 
@@ -266,6 +280,14 @@ export default function LearnPage() {
           pathData.courses.find(
             (c) => c.status === "unlocked" && c.progress < 100
           ) || pathData.courses[0];
+
+        // Handle case where courseData might be undefined
+        if (!courseData) {
+          setCurrentCourse(null);
+          setInProgress([pathObject]); // Still show the path
+          return;
+        }
+
         const firstModule = courseData.modules?.[0];
         const firstLesson = firstModule?.lessons?.[0];
         const courseNextUp =
@@ -288,18 +310,33 @@ export default function LearnPage() {
       }
     };
     fetchAllData();
-  }, [navigate]);
+  }, [navigate]); // navigate dependency is fine, though not strictly needed for fetch
 
-if (isLoading) return <LearnPageSkeleton />; // <-- THIS IS THE CHANGE
+  if (isLoading) return <LearnPageSkeleton />;
+
   if (error)
     return (
-            <div className="rounded-2xl border bg-red-50 p-8 text-center font-medium text-red-700 dark:bg-red-950/20 dark:text-red-400 border-red-200/80 dark:border-red-900/50">
-              Error: {error}
-            </div>
+      <div
+        className={`
+          transition-opacity duration-500 ease-in-out
+          ${isVisible ? "opacity-100" : "opacity-0"}
+        `}
+      >
+        <div className="rounded-2xl border bg-red-50 p-8 text-center font-medium text-red-700 dark:bg-red-950/20 dark:text-red-400 border-red-200/80 dark:border-red-900/50">
+          Error: {error}
+        </div>
+      </div>
     );
+
   if (!currentCourse)
     return (
-      <div className="p-10 text-center text-lg">
+      <div
+        className={`
+          p-10 text-center text-lg
+          transition-opacity duration-500 ease-in-out
+          ${isVisible ? "opacity-100" : "opacity-0"}
+        `}
+      >
         No learning progress found. Start a new course!
       </div>
     );
@@ -316,8 +353,13 @@ if (isLoading) return <LearnPageSkeleton />; // <-- THIS IS THE CHANGE
   };
 
   return (
-    // Updated: Base text color for dark mode
-    <div className="text-neutral-800 dark:text-neutral-300">
+    <div
+      className={`
+        text-neutral-800 dark:text-neutral-300
+        transition-opacity duration-500 ease-in-out
+        ${isVisible ? "opacity-100" : "opacity-0"}
+      `}
+    >
       <div className="mx-auto max-w-7xl ">
         <header className="mb-12">
           <div className="flex items-center justify-between">
