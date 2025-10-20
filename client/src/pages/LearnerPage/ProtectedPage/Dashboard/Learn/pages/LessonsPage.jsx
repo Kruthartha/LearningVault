@@ -12,7 +12,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import {
+  Braces,
   BookOpen,
+  GitBranch,
+  CodeXml,
+  Settings2,
   CheckCircle,
   Check,
   Clock,
@@ -50,7 +54,7 @@ const MarkdownFallback = () => (
 );
 
 const CodeBlockFallback = () => (
-  <div className="min-h-[100px] animate-pulse rounded-lg bg-slate-800 p-4">
+  <div className="min-h-[100px] animate-pulse rounded-lg bg-black p-4">
     <div className="h-4 w-3/4 rounded bg-slate-700"></div>
     <div className="mt-2 h-4 w-1/2 rounded bg-slate-700"></div>
   </div>
@@ -247,48 +251,59 @@ const StepRenderer = ({ step, state, callbacks }) => {
         </div>
       );
 
-    case "code":
-      return (
-        <div className="mb-8">
-          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-lg">
-            <div className="flex items-center justify-between border-b border-slate-700 bg-slate-800/50 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <div className="text-purple-400">
-                  <Code className="h-5 w-5" />
-                </div>
-                {step.title && (
-                  <h2 className="text-lg font-light text-slate-300">
-                    {step.title}
-                  </h2>
-                )}
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-xs font-medium uppercase text-slate-400">
-                  {step.lang || "javascript"}
-                </span>
-                <button
-                  onClick={handleCopy}
-                  className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                    isCopied
-                      ? "bg-green-600/20 text-green-400"
-                      : "bg-slate-700/50 text-slate-400 hover:bg-slate-700"
-                  }`}
-                >
-                  {isCopied ? <Check size={16} /> : <Clipboard size={16} />}
-                  <span>{isCopied ? "Copied!" : "Copy"}</span>
-                </button>
-              </div>
-            </div>
-            <Suspense fallback={<CodeBlockFallback />}>
-              <CodeBlock
-                code={step.code?.trim() || ""}
-                language={step.lang || "javascript"}
-              />
-            </Suspense>
+ case "code":
+  return (
+    <div className="mb-8">
+      {/* Main Container: 
+        - bg-black for the "all black" look.
+        - border-neutral-800 adds a very subtle border so it doesn't
+          disappear on a black website background.
+      */}
+      <div className="overflow-hidden rounded-lg border border-neutral-800 bg-black shadow-lg">
+        
+        {/* Header Bar: 
+          - Also bg-black, with a border-b to separate it from the code.
+        */}
+        <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+          
+          {/* Left Side: Language Name */}
+          <div>
+            <span className="font-mono text-xs font-medium uppercase tracking-wider text-neutral-500">
+              {step.lang || "javascript"}
+            </span>
+          </div>
+
+          {/* Right Side: Copy Button */}
+          <div>
+            <button
+              onClick={handleCopy}
+              className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium transition-colors duration-100 ${
+                isCopied
+                  ? "text-blue-300" // "Copied" feedback
+                  : "text-neutral-400 hover:text-white" // Default state
+              }`}
+            >
+              {isCopied ? <Check size={16} /> : <Clipboard size={16} />}
+              <span className="hidden sm:inline">
+                {isCopied ? "Copied!" : "Copy"}
+              </span>
+            </button>
           </div>
         </div>
-      );
 
+        {/* Code Area: 
+          - This area will be black because of the parent's `bg-black`.
+          - Your <CodeBlock> component MUST NOT have its own background color.
+        */}
+        <Suspense fallback={<CodeBlockFallback />}>
+          <CodeBlock
+            code={step.code?.trim() || ""}
+            language={step.lang || "javascript"}
+          />
+        </Suspense>
+      </div>
+    </div>
+  );
     case "quiz":
       return (
         <div className="mb-8">
