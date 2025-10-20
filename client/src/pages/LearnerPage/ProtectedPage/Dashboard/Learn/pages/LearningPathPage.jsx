@@ -13,7 +13,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const ProgressBar = ({ progress }) => {
   const getColorClass = (p) => {
-    // These colors generally have good contrast on both light and dark themes
+    // ... (your existing color logic)
     if (p >= 95) return "bg-green-600";
     if (p >= 80) return "bg-green-500";
     if (p >= 70) return "bg-lime-400";
@@ -38,6 +38,7 @@ const ProgressBar = ({ progress }) => {
 // --- Timeline Step Component (Themed) ---
 
 const TimelineStep = ({ course, index, isLast, pathSlug }) => {
+  // ... (your existing component logic)
   const navigate = useNavigate();
   const isLocked = course.status === "locked";
   const isCompleted = course.progress === 100;
@@ -151,6 +152,76 @@ const TimelineStep = ({ course, index, isLast, pathSlug }) => {
   );
 };
 
+// --- Skeleton Loader Components ---
+
+const TimelineStepSkeleton = ({ isLast = false }) => (
+  <div className="flex animate-pulse gap-6 md:gap-8">
+    {/* Timeline Column */}
+    <div className="flex flex-col items-center">
+      <div className="h-12 w-12 flex-shrink-0 rounded-full bg-neutral-200 dark:bg-gray-700"></div>
+      {!isLast && (
+        <div className="my-2 w-0.5 flex-grow bg-neutral-200 dark:bg-gray-700"></div>
+      )}
+    </div>
+    {/* Content Column */}
+    <div className="grid w-full grid-cols-1 gap-6 pt-1 lg:grid-cols-2">
+      {/* Card 1: Main Course */}
+      <div className="flex h-full flex-col rounded-xl border border-neutral-200/80 bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]">
+        <div className="mb-5 h-7 w-3/4 rounded bg-neutral-200 dark:bg-gray-700"></div>
+        <div className="flex-grow"></div>
+        <div className="mb-5 flex items-center gap-3">
+          <div className="h-2 w-full rounded-full bg-neutral-200 dark:bg-gray-700"></div>
+          <div className="h-4 w-12 rounded bg-neutral-200 dark:bg-gray-700"></div>
+        </div>
+        <div className="h-12 w-full rounded-xl bg-neutral-200 dark:bg-gray-700"></div>
+      </div>
+      {/* Card 2: Description */}
+      <div className="rounded-xl border border-neutral-200/80 bg-white p-6 dark:border-[#30363d] dark:bg-[#161b22]">
+        <div className="mb-4 h-6 w-1/2 rounded bg-neutral-200 dark:bg-gray-700"></div>
+        <div className="mb-2 h-4 w-full rounded bg-neutral-200 dark:bg-gray-700"></div>
+        <div className="mb-2 h-4 w-full rounded bg-neutral-200 dark:bg-gray-700"></div>
+        <div className="mb-4 h-4 w-5/6 rounded bg-neutral-200 dark:bg-gray-700"></div>
+        <div className="flex flex-wrap gap-2">
+          <div className="h-6 w-20 rounded-full bg-neutral-200 dark:bg-gray-700"></div>
+          <div className="h-6 w-24 rounded-full bg-neutral-200 dark:bg-gray-700"></div>
+          <div className="h-6 w-16 rounded-full bg-neutral-200 dark:bg-gray-700"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const LearningPathPageSkeleton = () => (
+  <div className="min-h-screen bg-neutral-50 dark:bg-[#0d1117]">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      {/* Back Button Skeleton */}
+      <div className="mb-6 h-5 w-40 animate-pulse rounded bg-neutral-200 dark:bg-gray-700"></div>
+      {/* Header Skeleton */}
+      <header className="mb-16 animate-pulse rounded-2xl border border-neutral-200/80 bg-white p-8 dark:border-[#30363d] dark:bg-[#161b22]">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
+          <div className="flex-grow">
+            <div className="mb-3 h-4 w-1/4 rounded bg-neutral-200 dark:bg-gray-700"></div>
+            <div className="mb-5 h-12 w-3/4 rounded bg-neutral-200 dark:bg-gray-700"></div>
+            <div className="flex items-center gap-4">
+              <div className="h-2 w-full rounded-full bg-neutral-200 dark:bg-gray-700"></div>
+              <div className="h-4 w-1/3 rounded bg-neutral-200 dark:bg-gray-700"></div>
+            </div>
+          </div>
+          <div className="flex-shrink-0">
+            <div className="h-12 w-full rounded-xl bg-neutral-200 dark:bg-gray-700 md:w-48"></div>
+          </div>
+        </div>
+      </header>
+      {/* Main Content Skeleton */}
+      <main className="flex flex-col gap-10">
+        <TimelineStepSkeleton />
+        <TimelineStepSkeleton />
+        <TimelineStepSkeleton isLast={true} />
+      </main>
+    </div>
+  </div>
+);
+
 // --- Main Page Component ---
 
 export default function LearningPathPage() {
@@ -159,9 +230,14 @@ export default function LearningPathPage() {
   const [pathData, setPathData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isVisible, setIsVisible] = useState(false); // For fade-in
 
   useEffect(() => {
     const fetchPathData = async () => {
+      // Reset visibility on new load
+      setIsLoading(true);
+      setIsVisible(false);
+
       const token = localStorage.getItem("accessToken");
       if (!token) {
         setError("Authentication required. Please log in.");
@@ -169,12 +245,9 @@ export default function LearningPathPage() {
         return;
       }
       try {
-        const response = await fetch(
-          `${API_URL}/user/progress/${pathSlug}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await fetch(`${API_URL}/user/progress/${pathSlug}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (!response.ok)
           throw new Error(`Failed to fetch data: ${response.statusText}`);
         const data = await response.json();
@@ -188,6 +261,13 @@ export default function LearningPathPage() {
     fetchPathData();
   }, [pathSlug]);
 
+  // Effect for fade-in animation
+  useEffect(() => {
+    if (!isLoading) {
+      setIsVisible(true);
+    }
+  }, [isLoading]);
+
   const handleContinuePath = () => {
     if (!pathData?.courses) return;
     const nextCourse = pathData.courses.find(
@@ -200,13 +280,29 @@ export default function LearningPathPage() {
     }
   };
 
-  if (isLoading)
-    return <div className="p-12 text-center">Loading Learning Path...</div>;
+  // Render Skeleton Loader
+  if (isLoading) return <LearningPathPageSkeleton />;
+
+  // Render Error State (with fade-in)
   if (error)
-    return <div className="p-12 text-center text-red-500">Error: {error}</div>;
+    return (
+      <div
+        className={`p-12 text-center text-red-500 transition-opacity duration-500 ease-in-out ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        Error: {error}
+      </div>
+    );
+
+  // Render No Data State (with fade-in)
   if (!pathData)
     return (
-      <div className="p-12 text-center">
+      <div
+        className={`p-12 text-center transition-opacity duration-500 ease-in-out ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
         No data found for this learning path.
       </div>
     );
@@ -216,8 +312,13 @@ export default function LearningPathPage() {
     pathData.courses?.filter((c) => c.progress === 100).length || 0;
   const overallProgress = pathData.progress || 0;
 
+  // Render Main Content (with fade-in)
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-800 dark:bg-[#0d1117] dark:text-neutral-300">
+    <div
+      className={`min-h-screen bg-neutral-50 text-neutral-800 dark:bg-[#0d1117] dark:text-neutral-300 transition-opacity duration-500 ease-in-out ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate("/dashboard/learn")}
