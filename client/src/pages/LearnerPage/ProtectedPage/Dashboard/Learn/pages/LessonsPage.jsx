@@ -251,59 +251,57 @@ const StepRenderer = ({ step, state, callbacks }) => {
         </div>
       );
 
- case "code":
-  return (
-    <div className="mb-8">
-      {/* Main Container: 
+    case "code":
+      return (
+        <div className="mb-8">
+          {/* Main Container: 
         - bg-black for the "all black" look.
         - border-neutral-800 adds a very subtle border so it doesn't
           disappear on a black website background.
       */}
-      <div className="overflow-hidden rounded-lg border border-neutral-800 bg-black shadow-lg">
-        
-        {/* Header Bar: 
+          <div className="overflow-hidden rounded-lg border border-neutral-800 bg-black shadow-lg">
+            {/* Header Bar: 
           - Also bg-black, with a border-b to separate it from the code.
         */}
-        <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
-          
-          {/* Left Side: Language Name */}
-          <div>
-            <span className="font-mono text-xs font-medium uppercase tracking-wider text-neutral-500">
-              {step.lang || "javascript"}
-            </span>
-          </div>
+            <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-3">
+              {/* Left Side: Language Name */}
+              <div>
+                <span className="font-mono text-xs font-medium uppercase tracking-wider text-neutral-500">
+                  {step.lang || "javascript"}
+                </span>
+              </div>
 
-          {/* Right Side: Copy Button */}
-          <div>
-            <button
-              onClick={handleCopy}
-              className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium transition-colors duration-100 ${
-                isCopied
-                  ? "text-blue-300" // "Copied" feedback
-                  : "text-neutral-400 hover:text-white" // Default state
-              }`}
-            >
-              {isCopied ? <Check size={16} /> : <Clipboard size={16} />}
-              <span className="hidden sm:inline">
-                {isCopied ? "Copied!" : "Copy"}
-              </span>
-            </button>
-          </div>
-        </div>
+              {/* Right Side: Copy Button */}
+              <div>
+                <button
+                  onClick={handleCopy}
+                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium transition-colors duration-100 ${
+                    isCopied
+                      ? "text-blue-300" // "Copied" feedback
+                      : "text-neutral-400 hover:text-white" // Default state
+                  }`}
+                >
+                  {isCopied ? <Check size={16} /> : <Clipboard size={16} />}
+                  <span className="hidden sm:inline">
+                    {isCopied ? "Copied!" : "Copy"}
+                  </span>
+                </button>
+              </div>
+            </div>
 
-        {/* Code Area: 
+            {/* Code Area: 
           - This area will be black because of the parent's `bg-black`.
           - Your <CodeBlock> component MUST NOT have its own background color.
         */}
-        <Suspense fallback={<CodeBlockFallback />}>
-          <CodeBlock
-            code={step.code?.trim() || ""}
-            language={step.lang || "javascript"}
-          />
-        </Suspense>
-      </div>
-    </div>
-  );
+            <Suspense fallback={<CodeBlockFallback />}>
+              <CodeBlock
+                code={step.code?.trim() || ""}
+                language={step.lang || "javascript"}
+              />
+            </Suspense>
+          </div>
+        </div>
+      );
     case "quiz":
       return (
         <div className="mb-8">
@@ -327,18 +325,31 @@ const StepRenderer = ({ step, state, callbacks }) => {
               let c =
                 "border-gray-200 hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:hover:border-blue-600 dark:hover:bg-blue-500/10";
 
+              // --- THIS IS THE MODIFIED LOGIC ---
               if (checkStatus !== "unchecked") {
-                if (isCorrect)
-                  c =
-                    "border-green-300 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-500/10 dark:text-green-300";
-                else if (isSelected)
-                  c =
-                    "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-500/10 dark:text-red-300";
-                else c = "border-gray-200 opacity-60 dark:border-gray-800";
+                // Check if this option is the one the user selected
+                if (isSelected) {
+                  // If it's selected, check if it's correct or not
+                  if (isCorrect) {
+                    // Selected and correct: GREEN
+                    c =
+                      "border-green-300 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-500/10 dark:text-green-300";
+                  } else {
+                    // Selected and wrong: RED
+                    c =
+                      "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-500/10 dark:text-red-300";
+                  }
+                } else {
+                  // This option was NOT selected, so just fade it out.
+                  // This prevents the correct answer from being revealed.
+                  c = "border-gray-200 opacity-60 dark:border-gray-800";
+                }
               } else if (isSelected) {
+                // This is the "active" state before checking
                 c =
                   "border-blue-300 bg-blue-50 ring-2 ring-blue-100 dark:border-blue-500 dark:bg-blue-500/10 dark:ring-blue-900";
               }
+              // --- END OF MODIFIED LOGIC ---
 
               return (
                 <button
@@ -355,9 +366,13 @@ const StepRenderer = ({ step, state, callbacks }) => {
                       {option}
                     </span>
                   </div>
+                  {/* This icon logic is correct and doesn't need to change.
+                  It only shows the Check if the status is "correct"
+                  (which only happens if they selected the right answer) */}
                   {checkStatus === "correct" && isCorrect && (
                     <CheckCircle className="h-6 w-6 text-green-500" />
                   )}
+                  {/* This only shows the X on the selected wrong answer */}
                   {checkStatus !== "unchecked" && isSelected && !isCorrect && (
                     <XCircle className="h-6 w-6 text-red-500" />
                   )}
