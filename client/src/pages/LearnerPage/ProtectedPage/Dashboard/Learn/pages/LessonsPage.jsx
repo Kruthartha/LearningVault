@@ -46,19 +46,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 // --- FALLBACKS FOR LAZY COMPONENTS ---
 // (From your previous file structure)
-const MarkdownFallback = () => (
-  <div className="space-y-3 p-2">
-    <div className="h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-    <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-  </div>
-);
 
-const CodeBlockFallback = () => (
-  <div className="min-h-[100px] animate-pulse rounded-lg bg-black p-4">
-    <div className="h-4 w-3/4 rounded bg-slate-700"></div>
-    <div className="mt-2 h-4 w-1/2 rounded bg-slate-700"></div>
-  </div>
-);
 
 const FullPageLoader = ({ text = "Loading..." }) => (
   <div className="flex h-screen items-center justify-center dark:bg-[#0d1117]">
@@ -212,15 +200,13 @@ const StepRenderer = ({ step, state, callbacks }) => {
     case "text":
       return (
         <div className="mb-6 max-w-none font-light leading-relaxed dark:text-gray-300">
-          <Suspense fallback={<MarkdownFallback />}>
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
-              components={markdownComponents}
-            >
-              {step.content}
-            </ReactMarkdown>
-          </Suspense>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={markdownComponents}
+          >
+            {step.content}
+          </ReactMarkdown>
         </div>
       );
 
@@ -236,15 +222,13 @@ const StepRenderer = ({ step, state, callbacks }) => {
                 Key Takeaway
               </h3>
               <div className="text-sm font-light text-blue-800 dark:text-blue-300">
-                <Suspense fallback={<MarkdownFallback />}>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
-                    components={markdownComponents}
-                  >
-                    {step.content}
-                  </ReactMarkdown>
-                </Suspense>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw]}
+                  components={markdownComponents}
+                >
+                  {step.content}
+                </ReactMarkdown>
               </div>
             </div>
           </div>
@@ -293,12 +277,11 @@ const StepRenderer = ({ step, state, callbacks }) => {
           - This area will be black because of the parent's `bg-black`.
           - Your <CodeBlock> component MUST NOT have its own background color.
         */}
-            <Suspense fallback={<CodeBlockFallback />}>
-              <CodeBlock
-                code={step.code?.trim() || ""}
-                language={step.lang || "javascript"}
-              />
-            </Suspense>
+
+            <CodeBlock
+              code={step.code?.trim() || ""}
+              language={step.lang || "javascript"}
+            />
           </div>
         </div>
       );
