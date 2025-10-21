@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, createContext, Suspense } from "react"; // <-- 1. ADD Suspense
+import { useState, useRef, useEffect, createContext, Suspense } from "react";
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -17,11 +17,9 @@ import CommandPalette from "../Dashboard/components/CommandPalette";
 import UserMenu from "../Dashboard/components/UserMenu";
 import Notifications from "../Dashboard/components/NotificationPanel";
 import { ThemeToggleButton } from "../Dashboard/Learn/components/ThemeToggleButton";
-
 import { LayoutContext } from "../Context/LayoutContext";
 
-// <-- 2. ADD THIS IMPORT
-// (Assuming you place GenericPageSkeleton.js in the same folder as CommandPalette.js)
+// Import the generic skeleton
 import GenericPageSkeleton from "./GenericPageSkeleton";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -37,7 +35,8 @@ const navItems = [
   { path: "/dashboard/practice", label: "Practice", icon: DraftingCompass },
 ];
 
-const DashboardLayout = () => {
+// 1. Accept `userProfile` as a prop
+const DashboardLayout = ({ userProfile }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isCommandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -47,39 +46,21 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // 2. Set state directly from the prop
+  const [userData, setUserData] = useState(userProfile);
+  //    Set loading to false if we already have data
+  const [loading, setLoading] = useState(!userProfile);
 
-  // ... (useEffect for fetching profile remains the same)
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch(`${API_URL}/user/profile`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
-        const data = await res.json();
-        if (data.ok) setUserData(data);
-        else setUserData(null);
-      } catch (err) {
-        console.error("Error fetching profile:", err);
-        setUserData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
+  // 3. The redundant useEffect for fetching the profile has been REMOVED
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("accessToken"); // Also clear the token
     setMobileMenuOpen(false);
     navigate("/login");
   };
 
-  // ... (other useEffect hooks remain the same)
+  // This hook closes the mobile menu on navigation
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? "hidden" : "unset";
     return () => {
@@ -87,10 +68,12 @@ const DashboardLayout = () => {
     };
   }, [mobileMenuOpen]);
 
+  // This hook closes the mobile menu when the path changes
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // This hook handles clicks outside the notification panel
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -109,11 +92,21 @@ const DashboardLayout = () => {
     };
   }, [showNotifications]);
 
-  if (!userData) return <p></p>;
+  // 4. Update the loading check
+  //    This now only shows if the prop wasn't passed for some reason
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
+        <GenericPageSkeleton />
+      </main>
+    );
+  }
+
+  // This is a final fallback check
+  if (!userData) return <p>Error: No user data found.</p>;
 
   return (
     <LayoutContext.Provider value={{ setIsFullScreen }}>
-      {/* Updated: Main container with GitHub dark background */}
       <div className="min-h-screen bg-neutral-50 dark:bg-[#0d1117]">
         <CommandPalette
           open={isCommandPaletteOpen}
@@ -121,13 +114,11 @@ const DashboardLayout = () => {
         />
 
         {!isFullScreen && (
-          // Updated: Header with GitHub dark styles
           <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-sm dark:border-[#30363d] dark:bg-[#161b22]/80">
             <div className="mx-auto max-w-7xl px-4 md:px-6">
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-3">
-                    {/* Updated: Text color for better contrast */}
                     <h1 className="text-xl font-light text-black dark:text-white md:text-2xl">
                       Learning
                       <span className="bg-gradient-to-bl from-blue-600 via-blue-400 to-blue-700 bg-clip-text font-medium text-transparent">
@@ -135,7 +126,6 @@ const DashboardLayout = () => {
                       </span>
                     </h1>
                   </div>
-                  {/* Updated: Navigation links with GitHub dark styles */}
                   <nav className="hidden items-center gap-2 lg:flex">
                     {navItems.map(({ path, label, icon: Icon }) => (
                       <NavLink
@@ -145,7 +135,7 @@ const DashboardLayout = () => {
                         className={({ isActive }) =>
                           `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                             isActive
-                              ? "bg-blue-50 text-blue-600 dark:bg-[#21262d] dark:text-white" // Active state more prominent
+                              ? "bg-blue-50 text-blue-600 dark:bg-[#21262d] dark:text-white"
                               : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                           }`
                         }
@@ -156,7 +146,6 @@ const DashboardLayout = () => {
                   </nav>
                 </div>
                 <div className="flex items-center gap-2 md:gap-4">
-                  {/* Updated: Search button with GitHub dark styles */}
                   <button
                     onClick={() => setCommandPaletteOpen(true)}
                     className="hidden items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-[#21262d] dark:text-gray-400 dark:hover:bg-gray-800 md:flex"
@@ -166,7 +155,6 @@ const DashboardLayout = () => {
                       ⌘K
                     </span>
                   </button>
-                  {/* Updated: Icon buttons with GitHub dark styles */}
                   <button
                     onClick={() => setCommandPaletteOpen(true)}
                     className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 md:hidden"
@@ -177,10 +165,9 @@ const DashboardLayout = () => {
                   <Notifications />
                   <ThemeToggleButton />
 
-                  {/* Updated: Divider color */}
                   <div className="hidden h-6 w-px bg-gray-200 dark:bg-gray-700 sm:block"></div>
+                  {/* 5. Pass the userData (from state/prop) to UserMenu */}
                   <UserMenu userData={userData} getInitials={getInitials} />
-                  {/* Updated: Icon buttons with GitHub dark styles */}
                   <button
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
@@ -198,13 +185,11 @@ const DashboardLayout = () => {
         )}
 
         {mobileMenuOpen && (
-          // Updated: Mobile menu with GitHub dark styles
           <div
             className="fixed inset-0 z-50 bg-white dark:bg-[#0d1117] lg:hidden"
             aria-modal="true"
           >
             <div className="flex h-full flex-col px-4 pb-8 sm:px-6">
-              {/* Updated: Mobile header with consistent styles */}
               <div className="mb-6 flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-200 dark:border-gray-800">
                 <div className="flex items-center gap-3">
                   <h1 className="text-xl font-light text-black dark:text-gray-300">
@@ -221,7 +206,6 @@ const DashboardLayout = () => {
                   <X className="h-6 w-6" />
                 </button>
               </div>
-              {/* Updated: Mobile navigation links */}
               <nav className="flex flex-grow flex-col gap-2 overflow-y-auto">
                 {navItems.map(({ path, label, icon: Icon }) => (
                   <NavLink
@@ -260,7 +244,7 @@ const DashboardLayout = () => {
             isFullScreen ? "" : "mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8"
           }
         >
-          {/* <-- 3. ADD THE SUSPENSE WRAPPER --> */}
+          {/* This Suspense wrapper handles the lazy-loading of child routes */}
           <Suspense fallback={<GenericPageSkeleton />}>
             <Outlet />
           </Suspense>

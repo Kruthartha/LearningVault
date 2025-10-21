@@ -90,7 +90,7 @@ const PageUnderConstructionPage = lazy(() =>
 function App() {
   return (
     <Router>
-      <Suspense fallback={<ThemedPageLoader/>}>
+      <Suspense fallback={<ThemedPageLoader />}>
         <Routes>
           {/* Public Pages */}
           <Route path="/" element={<HomePage />} />
@@ -115,7 +115,7 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <DashboardLayout />
+                {(userProfile) => <DashboardLayout userProfile={userProfile} />}
               </ProtectedRoute>
             }
           >
