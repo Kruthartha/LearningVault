@@ -970,9 +970,9 @@ const focusSection = focusData
       cta: "Start Learning",
     }
   : {
-      title: null,
-      link: null,
-      cta: null,
+      title: "Explore Learn Section ",
+      link: `/dashboard/learn/`,
+      cta: "Explore",
     };
 
     // --- ✅ Final Response ---
