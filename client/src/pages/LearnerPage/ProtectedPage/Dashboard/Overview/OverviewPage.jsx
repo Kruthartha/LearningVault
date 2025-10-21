@@ -232,7 +232,7 @@ const transformApiData = (apiData) => {
 // --- Main App Component ---
 
 // Use a placeholder URL or environment variable
-const API_URL = "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const App = () => {
   const [dashboardData, setDashboardData] = useState(null);
