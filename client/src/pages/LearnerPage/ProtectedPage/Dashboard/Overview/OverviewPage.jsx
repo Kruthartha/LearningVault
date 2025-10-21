@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import LearnerOverview from "./components/LearnerOverview";
+import { OverviewPageSkeleton } from "./components/OverviewPageSkeleton"; // <-- 1. IMPORT SKELETON
 
 // --- Mock Data (used as a template and for missing API data) ---
 // This is the static data you provided. We'll use it as a base.
@@ -229,12 +230,13 @@ const transformApiData = (apiData) => {
   return newData;
 };
 
-// --- Main App Component ---
+// --- Main Page Component ---
 
 // Use a placeholder URL or environment variable
 const API_URL = import.meta.env.VITE_API_URL;
 
-const App = () => {
+// <-- 2. RENAMED COMPONENT
+const OverviewPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -286,14 +288,10 @@ const App = () => {
 
   // --- Render Logic ---
 
-if (isLoading) {
-  return (
-    <div className="flex flex-col items-center justify-center p-8 space-y-4">
-      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-lg text-gray-700">Loading Dashboard...</p>
-    </div>
-  );
-}
+  // <-- 3. USE THE SKELETON INSTEAD OF SPINNER
+  if (isLoading) {
+    return <OverviewPageSkeleton />;
+  }
 
   if (error) {
     return (
@@ -313,4 +311,4 @@ if (isLoading) {
   return <LearnerOverview data={dashboardData} />;
 };
 
-export default App;
+export default OverviewPage; // <-- 2. RENAMED EXPORT
