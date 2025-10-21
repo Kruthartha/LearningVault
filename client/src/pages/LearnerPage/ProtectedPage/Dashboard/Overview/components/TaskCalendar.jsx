@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 
 // --- API Base URL ---
 const API_URL = import.meta.env.VITE_API_URL;
+const TASK_URL = `${API_URL}/tasks`
 
 // --- Utility Functions ---
 const isSameDay = (d1, d2) => {
@@ -750,7 +751,7 @@ const CalendarPage = () => {
       }
 
       try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(TASK_URL, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -782,11 +783,11 @@ const CalendarPage = () => {
     // Check if taskData has an 'id' property to determine if it's an edit
     const isEditing = taskData.hasOwnProperty("id");
 
-    let url = API_URL;
+    let url = TASK_URL;
     let method = "POST";
 
     if (isEditing) {
-      url = `${API_URL}/${taskData.id}`;
+      url = `${TASK_URL}/${taskData.id}`;
       method = "PUT";
     }
 
@@ -834,7 +835,7 @@ const CalendarPage = () => {
     }
     const token = localStorage.getItem("accessToken");
     try {
-      const response = await fetch(`${API_URL}/${taskId}`, {
+      const response = await fetch(`${TASK_URL}/${taskId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -867,7 +868,7 @@ const CalendarPage = () => {
     const updatedTaskPayload = { ...task, status: newStatus };
 
     try {
-      const response = await fetch(`${API_URL}/${taskId}`, {
+      const response = await fetch(`${TASK_URL}/${taskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
