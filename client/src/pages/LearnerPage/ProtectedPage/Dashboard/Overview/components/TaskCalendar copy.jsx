@@ -12,23 +12,16 @@ import {
   List,
   Edit2,
   Trash2,
-  Loader2, // Added for loading state
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-// --- API Base URL ---
-const API_URL = "http://localhost:3000/api/tasks";
 
 // --- Utility Functions ---
 const isSameDay = (d1, d2) => {
   if (!d1 || !d2) return false;
-  // Ensure d1 and d2 are Date objects
-  const date1 = d1 instanceof Date ? d1 : new Date(d1);
-  const date2 = d2 instanceof Date ? d2 : new Date(d2);
   return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate()
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
   );
 };
 
@@ -50,7 +43,7 @@ const viewTransition = { type: "tween", duration: 0.2, ease: "easeInOut" };
 
 const TaskItem = React.memo(({ task, onToggleStatus, onEdit, onDelete }) => {
   const { id, title, course, priority, time, status } = task;
-  const isDone = status === "done" || status === "completed"; // Handle both
+  const isDone = status === "done";
   const priorityColor = PRIORITY_COLORS[priority] || PRIORITY_COLORS.low;
 
   return (
@@ -132,53 +125,34 @@ const TaskModal = ({ taskToEdit, date, onSave, onCancel }) => {
   const [priority, setPriority] = useState("medium");
   const [time, setTime] = useState("10:00");
   const [currentDate, setCurrentDate] = useState(date);
-  const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = !!taskToEdit;
 
   useEffect(() => {
     if (isEditing) {
       setTitle(taskToEdit.title);
-      setCourse(taskToEdit.course || "");
+      setCourse(taskToEdit.course);
       setPriority(taskToEdit.priority);
-      setTime(taskToEdit.time || "10:00");
+      setTime(taskToEdit.time);
       setCurrentDate(new Date(taskToEdit.date));
     } else {
-      setTitle("");
-      setCourse("");
-      setPriority("medium");
-      setTime("10:00");
       setCurrentDate(date);
     }
   }, [taskToEdit, isEditing, date]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim() || isSaving) return;
-    setIsSaving(true);
-
+    if (!title.trim()) return;
     const taskData = {
+      id: isEditing ? taskToEdit.id : Date.now(),
       title,
       course,
-      date: currentDate.toISOString(), // Send as ISO string
+      date: currentDate.toISOString(),
       priority,
       time,
       status: isEditing ? taskToEdit.status : "pending",
     };
-
-    // [MODIFIED] Only add ID if we are editing
-    if (isEditing) {
-      taskData.id = taskToEdit.id;
-    }
-
-    const success = await onSave(taskData);
-    setIsSaving(false);
-    if (success) {
-      onCancel(); // Close modal on success
-    } else {
-      // Handle error display (e.g., a toast notification)
-      alert("Failed to save task.");
-    }
+    onSave(taskData);
   };
 
   return (
@@ -244,21 +218,15 @@ const TaskModal = ({ taskToEdit, date, onSave, onCancel }) => {
             <button
               type="button"
               onClick={onCancel}
-              disabled={isSaving}
-              className="w-full rounded-lg bg-slate-500/20 dark:bg-zinc-700 px-4 py-2.5 text-sm font-semibold text-slate-800 dark:text-zinc-200 hover:bg-slate-500/30 dark:hover:bg-zinc-600 transition-colors disabled:opacity-50"
+              className="w-full rounded-lg bg-slate-500/20 dark:bg-zinc-700 px-4 py-2.5 text-sm font-semibold text-slate-800 dark:text-zinc-200 hover:bg-slate-500/30 dark:hover:bg-zinc-600 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isSaving}
-              className="w-full rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full rounded-lg bg-blue-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition-colors shadow-sm"
             >
-              {isSaving ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <>{isEditing ? "Save Changes" : "Add Task"}</>
-              )}
+              {isEditing ? "Save Changes" : "Add Task"}
             </button>
           </div>
         </form>
@@ -328,7 +296,6 @@ const MiniCalendar = ({ currentDate, onDateChange, tasksByDate }) => {
           <div key={`pad-${i}`} />
         ))}
         {monthDays.map((day) => {
-          // Component's `tasksByDate` uses `toDateString()` as key
           const hasTasks = tasksByDate.has(day.toDateString());
           return (
             <div
@@ -374,25 +341,22 @@ const MiniCalendar = ({ currentDate, onDateChange, tasksByDate }) => {
 };
 
 // --- Main Calendar Component ---
-// [MODIFIED] Receives tasks and handlers as props
-const TaskCalendar = ({
-  tasks,
-  setTasks,
-  onSaveTask,
-  onDeleteTask,
-  onToggleStatus,
-}) => {
+const TaskCalendar = ({ initialTasks }) => {
+  const [tasks, setTasks] = useState(
+    initialTasks.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    )
+  );
   const [view, setView] = useState("agenda");
-  // Use today's date as default
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(
+    new Date("2025-10-16T12:20:13")
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
 
-  // [MODIFIED] This useMemo now correctly uses the `tasks` prop
   const tasksByDate = useMemo(() => {
     const map = new Map();
     tasks.forEach((task) => {
-      // API sends ISO string, new Date() handles it correctly
       const dateKey = new Date(task.date).toDateString();
       if (!map.has(dateKey)) map.set(dateKey, []);
       map.get(dateKey).push(task);
@@ -422,25 +386,37 @@ const TaskCalendar = ({
     setIsModalOpen(true);
   };
 
-  // [MODIFIED] This function now calls the API handler passed via props
-  const handleSaveTask = async (taskData) => {
-    const success = await onSaveTask(taskData);
-    if (success) {
-      setIsModalOpen(false);
-      setTaskToEdit(null);
+  const handleSaveTask = (taskData) => {
+    const isEditing = tasks.some((t) => t.id === taskData.id);
+    if (isEditing) {
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (t.id === taskData.id ? taskData : t))
+      );
+    } else {
+      setTasks((prevTasks) =>
+        [...prevTasks, taskData].sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        )
+      );
     }
-    return success; // Return success status to modal
+    setIsModalOpen(false);
+    setTaskToEdit(null);
   };
 
-  // [MODIFIED] This function now calls the API handler passed via props
   const handleDeleteTask = (taskId) => {
-    // Confirmation is now handled in the parent
-    onDeleteTask(taskId);
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      setTasks((prevTasks) => prevTasks.filter((t) => t.id !== taskId));
+    }
   };
 
-  // [MODIFIED] This function now calls the API handler passed via props
   const handleToggleStatus = (taskId) => {
-    onToggleStatus(taskId);
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskId
+          ? { ...task, status: task.status === "done" ? "pending" : "done" }
+          : task
+      )
+    );
   };
 
   const changeMonth = (offset) => {
@@ -451,33 +427,17 @@ const TaskCalendar = ({
     });
   };
 
-  const today = new Date();
+  const today = new Date("2025-10-16T12:20:13");
 
   // --- Views ---
   const MonthView = () => (
     <div className="grid grid-cols-7 grid-rows-5 flex-1 bg-slate-200/40 dark:bg-zinc-800/20">
-      {/* Add weekday headers */}
-      {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-        <div
-          key={day}
-          className="p-2 text-xs font-semibold text-center text-slate-500 dark:text-zinc-400 border-b border-r border-slate-200/70 dark:border-zinc-800"
-        >
-          {day}
-        </div>
-      ))}
-      {/* Add padding for first day */}
-      {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-        <div
-          key={`pad-${i}`}
-          className="border-r border-b border-slate-200/70 dark:border-zinc-800"
-        />
-      ))}
       {monthDays.map((day) => {
         const dayTasks = tasksByDate.get(day.toDateString()) || [];
         return (
           <div
             key={day.toISOString()}
-            className="relative flex flex-col p-2 bg-white/60 dark:bg-black/50 border-r border-b border-slate-200/70 dark:border-zinc-800 group cursor-pointer min-h-[12vh]"
+            className="relative flex flex-col p-2 bg-white/60 dark:bg-black/50 border-r border-b border-slate-200/70 dark:border-zinc-800 group cursor-pointer"
             onClick={() => {
               setCurrentDate(day);
               handleOpenModalForCreate();
@@ -551,9 +511,6 @@ const TaskCalendar = ({
                   axis="y"
                   values={tasksOnDay}
                   onReorder={(newOrder) => {
-                    // This reorder is visual only and doesn't persist.
-                    // To persist, you'd need a separate API call.
-                    // For now, we update local state via `setTasks`.
                     const otherTasks = tasks.filter(
                       (t) => new Date(t.date).toDateString() !== dateKey
                     );
@@ -731,167 +688,75 @@ const TaskCalendar = ({
   );
 };
 
-// --- [MODIFIED] Page Wrapper Component ---
+// --- Example Data and Wrapper ---
+const sampleTasks = [
+  {
+    id: 1,
+    title: "Finalize Project Proposal",
+    course: "Project Management",
+    date: new Date("2025-10-20T14:00:00"),
+    priority: "high",
+    time: "2:00 PM",
+    status: "pending",
+  },
+  {
+    id: 2,
+    title: "Complete React Hooks Module",
+    course: "Advanced React",
+    date: new Date("2025-10-16T10:00:00"),
+    priority: "medium",
+    time: "10:00 AM",
+    status: "pending",
+  },
+  {
+    id: 3,
+    title: "Peer Review: Data Structures",
+    course: "CS 101",
+    date: new Date("2025-10-16T16:00:00"),
+    priority: "low",
+    time: "4:00 PM",
+    status: "done",
+  },
+  {
+    id: 4,
+    title: "Submit Weekly Report",
+    course: "Internship",
+    date: new Date("2025-10-24T17:00:00"),
+    priority: "medium",
+    time: "5:00 PM",
+    status: "pending",
+  },
+  {
+    id: 5,
+    title: "Prepare for Midterm Exam",
+    course: "Algorithms",
+    date: new Date("2025-11-02T09:00:00"),
+    priority: "high",
+    time: "9:00 AM",
+    status: "pending",
+  },
+  {
+    id: 6,
+    title: "Team Sync-up Meeting",
+    course: "Project Management",
+    date: new Date("2025-10-17T11:00:00"),
+    priority: "medium",
+    time: "11:00 AM",
+    status: "pending",
+  },
+  {
+    id: 7,
+    title: "Doctor's Appointment",
+    course: "Personal",
+    date: new Date("2025-10-16T15:00:00"),
+    priority: "high",
+    time: "3:00 PM",
+    status: "pending",
+  },
+];
+
 const CalendarPage = () => {
   const navigate = useNavigate();
-  // [NEW] All state is managed here
-  const [tasks, setTasks] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // [NEW] Fetch data on component mount
-  useEffect(() => {
-    const fetchTasks = async () => {
-      const token = localStorage.getItem("accessToken"); // Get token from storage
-      if (!token) {
-        setError("You are not authorized. Please log in.");
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(API_URL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || "Failed to fetch tasks");
-        }
-        const data = await response.json();
-        // Sort tasks by date once on load
-        const sortedTasks = data.tasks.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        setTasks(sortedTasks);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTasks();
-  }, []); // Empty array ensures this runs only once on mount
-
-  // [NEW] API handler for Create/Update
-  const handleSaveTask = async (taskData) => {
-    const token = localStorage.getItem("accessToken");
-    // Check if taskData has an 'id' property to determine if it's an edit
-    const isEditing = taskData.hasOwnProperty("id");
-
-    let url = API_URL;
-    let method = "POST";
-
-    if (isEditing) {
-      url = `${API_URL}/${taskData.id}`;
-      method = "PUT";
-    }
-
-    try {
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(taskData),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Failed to save task");
-      }
-
-      const savedTask = await response.json();
-
-      // Update local state
-      if (isEditing) {
-        setTasks((prevTasks) =>
-          prevTasks.map((t) => (t.id === savedTask.id ? savedTask : t))
-        );
-      } else {
-        // Add new task and re-sort
-        setTasks((prevTasks) =>
-          [...prevTasks, savedTask].sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-          )
-        );
-      }
-      return true; // Signal success
-    } catch (err) {
-      setError(err.message);
-      return false; // Signal failure
-    }
-  };
-
-  // [NEW] API handler for Delete
-  const handleDeleteTask = async (taskId) => {
-    if (!window.confirm("Are you sure you want to delete this task?")) {
-      return;
-    }
-    const token = localStorage.getItem("accessToken");
-    try {
-      const response = await fetch(`${API_URL}/${taskId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Failed to delete task");
-      }
-
-      // Update local state
-      setTasks((prevTasks) => prevTasks.filter((t) => t.id !== taskId));
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  // [NEW] API handler for Toggling Status
-  const handleToggleStatus = async (taskId) => {
-    const token = localStorage.getItem("accessToken");
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) return;
-
-    const newStatus =
-      task.status === "done" || task.status === "completed"
-        ? "pending"
-        : "done";
-    // Create the payload for the PUT request
-    const updatedTaskPayload = { ...task, status: newStatus };
-
-    try {
-      const response = await fetch(`${API_URL}/${taskId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedTaskPayload),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Failed to update task status");
-      }
-
-      const savedTask = await response.json();
-
-      // Update local state
-      setTasks((prevTasks) =>
-        prevTasks.map((t) => (t.id === savedTask.id ? savedTask : t))
-      );
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   return (
     <div className="min-h-screen font-sans p-4 ">
       <div className="flex items-center mb-6">
@@ -905,27 +770,7 @@ const CalendarPage = () => {
           Calendar
         </h1>
       </div>
-
-      {/* [NEW] Loading and Error handling */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-[80vh]">
-          <Loader2 size={32} className="animate-spin text-blue-500" />
-        </div>
-      ) : error ? (
-        <div className="flex items-center justify-center h-[80vh] p-8 text-center bg-red-100/50 dark:bg-red-900/10 text-red-600 dark:text-red-400 rounded-2xl">
-          <p>
-            <strong>Error:</strong> {error}
-          </p>
-        </div>
-      ) : (
-        <TaskCalendar
-          tasks={tasks}
-          setTasks={setTasks} // Pass setter for local reordering
-          onSaveTask={handleSaveTask}
-          onDeleteTask={handleDeleteTask}
-          onToggleStatus={handleToggleStatus}
-        />
-      )}
+      <TaskCalendar initialTasks={sampleTasks} />
     </div>
   );
 };

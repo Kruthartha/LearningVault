@@ -127,9 +127,26 @@ const RecommendationCard = ({ item }) => {
   );
 };
 
-const StreakTracker = ({ streak }) => {
-  const weekDays = ["S", "M", "T", "W", "T", "F", "S"];
-  const todayIndex = new Date().getDay();
+// --- [MODIFIED] StreakTracker Component ---
+const StreakTracker = ({ streakData }) => {
+  // Define the days of the week in the order we want to display them
+  // This order must match the keys from the API response
+  const weekDays = [
+    { key: "Monday", label: "M" },
+    { key: "Tuesday", label: "T" },
+    { key: "Wednesday", label: "W" },
+    { key: "Thursday", label: "T" },
+    { key: "Friday", label: "F" },
+    { key: "Saturday", label: "S" },
+    { key: "Sunday", label: "S" },
+  ];
+
+  // Get today's index (0=Sun, 1=Mon, ..., 6=Sat)
+  const todayJsIndex = new Date().getDay();
+  // Convert to our app's index (0=Mon, ..., 6=Sun)
+  const todayAppIndex = todayJsIndex === 0 ? 6 : todayJsIndex - 1;
+
+  const currentStreak = streakData?.current_streak || 0;
 
   return (
     // Updated: Card styles for dark mode
@@ -141,13 +158,15 @@ const StreakTracker = ({ streak }) => {
         <div className="relative">
           <Flame size={40} className="text-orange-500" />
           {/* Updated: Border color to match dark card background */}
-          <span className="absolute flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-orange-500 border-2 border-white rounded-full -top-1 -right-2 dark:border-[#161b22]">
-            {streak.days}
+          <span className="absolute flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-orange-500 border-2 border-white rounded-full -top-1 -right-2 dark:border-[#0e1013]">
+            {/* Use current_streak from streakData */}
+            {currentStreak}
           </span>
         </div>
         <div>
           <p className="text-lg font-medium text-slate-800 dark:text-slate-50">
-            {streak.days}-Day Streak
+            {/* Use current_streak from streakData */}
+            {currentStreak}-Day Streak
           </p>
           <p className="text-sm font-light text-slate-500 dark:text-slate-400">
             Keep the flame alive!
@@ -155,26 +174,42 @@ const StreakTracker = ({ streak }) => {
         </div>
       </div>
       <div className="flex items-center justify-between mt-5">
-        {weekDays.map((day, index) => (
-          <div
-            key={index}
-            className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium ${
-              streak.days > 0 &&
-              index <= todayIndex &&
-              streak.days > todayIndex - index
-                ? // Updated: Active day styles for dark mode
-                  "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400"
-                : // Updated: Inactive day styles for dark mode
-                  "bg-neutral-100 text-neutral-400 dark:bg-gray-800 dark:text-gray-500"
-            }`}
-          >
-            {day}
-          </div>
-        ))}
+        {/* Map over our defined weekDays array */}
+        {weekDays.map((day, index) => {
+          // Check if the activity for this day is "Yes"
+          // Add safety check for streakData.week_streak_activity
+          const isActive =
+            streakData?.week_streak_activity?.[day.key] === "Yes";
+          const isToday = index === todayAppIndex;
+
+          return (
+            <div
+              key={day.key}
+              className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-all
+                ${
+                  isActive
+                    ? // Active day styles
+                      "bg-orange-100 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400"
+                    : // Inactive day styles
+                      "bg-neutral-100 text-neutral-400 dark:bg-gray-800 dark:text-gray-500"
+                }
+                ${
+                  // Add a ring to highlight today
+                  isToday
+                    ? "ring-2 ring-orange-300 dark:ring-orange-400 ring-offset-2 dark:ring-offset-[#0e1013]"
+                    : ""
+                }
+              `}
+            >
+              {day.label}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
+// --- [END MODIFIED] StreakTracker Component ---
 
 // --- Main Page Component ---
 
@@ -186,6 +221,7 @@ export default function LearnPage() {
   const [activeTab, setActiveTab] = useState(0);
   const [currentCourse, setCurrentCourse] = useState(null);
   const [pathSlug, setPathSlug] = useState(null);
+  // Default state matches the new structure (or part of it)
   const [streakData, setStreakData] = useState({ current_streak: 0 });
   const [isVisible, setIsVisible] = useState(false);
 
@@ -245,6 +281,7 @@ export default function LearnPage() {
         const progressData = await progressResponse.json();
         const streakResult = await streakResponse.json();
 
+        // This now correctly sets the state to the new API response
         setStreakData(streakResult);
 
         const pathData = progressData[0];
@@ -450,7 +487,11 @@ export default function LearnPage() {
           </main>
 
           <aside className="space-y-8 lg:sticky lg:top-24">
-            <StreakTracker streak={{ days: streakData.current_streak }} />
+            {/* --- [MODIFIED] StreakTracker Usage --- */}
+            {/* Pass the entire streakData object */}
+            <StreakTracker streakData={streakData} />
+            {/* --- [END MODIFIED] StreakTracker Usage --- */}
+
             {/* Updated: Explore card styles */}
             <div className="p-6 border rounded-2xl bg-white dark:bg-[#0e1013] border-neutral-200/80 dark:border-[#30363d]">
               <h3 className="mb-4 font-normal text-slate-800 dark:text-slate-200">

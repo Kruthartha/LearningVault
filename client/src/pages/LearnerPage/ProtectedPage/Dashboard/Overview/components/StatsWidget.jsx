@@ -9,7 +9,7 @@ const AnimatedValue = ({ value }) => {
   const suffix = String(value).replace(String(numericValue), "").trim();
 
   const spring = useSpring(0, { mass: 0.8, stiffness: 100, damping: 20 });
-  
+
   React.useEffect(() => {
     spring.set(numericValue);
   }, [spring, numericValue]);
@@ -72,20 +72,67 @@ const StatCard = ({ icon: Icon, value, label, colorClass, variants }) => {
       </svg>
 
       <div className="relative">
-        <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/50 dark:bg-black/20 ${styles.icon}`}>
+        <div
+          className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/50 dark:bg-black/20 ${styles.icon}`}
+        >
           <Icon className="h-5 w-5" />
         </div>
-        <p className="text-sm font-light text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="text-sm font-light text-slate-500 dark:text-slate-400">
+          {label}
+        </p>
         <p className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          <AnimatedValue value={value} />
+          {/* --- MODIFICATION ---
+            If the label is "This Week", we render the formatted string (e.g., "1h 30m") directly.
+            Otherwise, we use the AnimatedValue component for counting up.
+          */}
+          {label === "This Week" ? value : <AnimatedValue value={value} />}
         </p>
       </div>
     </motion.div>
   );
 };
 
+// --- [NEW] Helper function to format time ---
+/**
+ * Formats decimal hours into a human-readable string (e.g., "1h 30m" or "16m")
+ * @param {number} decimalHours - The hours value (e.g., 0.2666)
+ * @returns {string} - The formatted string
+ */
+const formatTime = (decimalHours) => {
+  if (decimalHours === undefined || decimalHours === null) {
+    return "0m";
+  }
+
+  // Convert decimal hours to total minutes (e.g., 0.2666... * 60 = 16)
+  const totalMinutes = Math.round(decimalHours * 60);
+
+  if (totalMinutes === 0) {
+    return "0m";
+  }
+
+  // Get the whole hours (e.g., 150 / 60 = 2)
+  const hours = Math.floor(totalMinutes / 60);
+  // Get the remaining minutes (e.g., 150 % 60 = 30)
+  const minutes = totalMinutes % 60;
+
+  const parts = [];
+  if (hours > 0) {
+    parts.push(`${hours}h`);
+  }
+  if (minutes > 0) {
+    parts.push(`${minutes}m`);
+  }
+
+  // Join the parts: "2h 30m", "2h", or "30m"
+  return parts.length > 0 ? parts.join(" ") : "0m";
+};
+
 // --- Main StatsWidget Component ---
 const StatsWidget = ({ stats }) => {
+  // --- [MODIFIED] ---
+  // Call the new formatTime function to get the human-readable string
+  const formattedTime = formatTime(stats.hours);
+
   const statItems = [
     {
       icon: Flame,
@@ -99,15 +146,17 @@ const StatsWidget = ({ stats }) => {
       label: "Skills Unlocked",
       colorClass: "purple",
     },
-    { 
-      icon: Star, 
-      value: stats.level, 
-      label: "XP Level", 
-      colorClass: "red" 
+    {
+      icon: Star,
+      value: stats.level,
+      label: "XP Level",
+      colorClass: "red",
     },
     {
       icon: Clock,
-      value: `${stats.hours}h`,
+      // --- [MODIFIED] ---
+      // Use the new formattedTime string instead of the decimal
+      value: formattedTime,
       label: "This Week",
       colorClass: "green",
     },

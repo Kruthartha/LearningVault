@@ -71,37 +71,7 @@ const LearnerOverview = ({ data }) => {
               </div>
             </Widget>
 
-            <Widget title="Your Learning Path">
-              <div className="grid md:grid-cols-2 gap-4">
-                {learningPath.map((path, index) => (
-                  <a
-                    href="#"
-                    key={index}
-                    // Themed link cards
-                    className="block p-4 rounded-xl border border-slate-200 hover:border-blue-500/50 hover:bg-white/80 transition-colors dark:border-[#30363d] dark:hover:bg-slate-800/50"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                        {path.title}
-                      </p>
-                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        {path.progress}%
-                      </span>
-                    </div>
-                    {/* Themed progress bar */}
-                    <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2 dark:bg-slate-700">
-                      <div
-                        className="bg-blue-500 h-1.5 rounded-full"
-                        style={{ width: `${path.progress}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-2 dark:text-slate-400">
-                      {path.nextStep}
-                    </p>
-                  </a>
-                ))}
-              </div>
-            </Widget>
+           
           </div>
 
           {/* --- RIGHT (SIDEBAR) COLUMN --- */}
