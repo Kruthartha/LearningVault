@@ -286,10 +286,14 @@ const App = () => {
 
   // --- Render Logic ---
 
-  if (isLoading) {
-    // You can replace this with a more sophisticated skeleton loader
-    return <div className="p-8 text-center text-lg">Loading Dashboard...</div>;
-  }
+if (isLoading) {
+  return (
+    <div className="flex flex-col items-center justify-center p-8 space-y-4">
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-lg text-gray-700">Loading Dashboard...</p>
+    </div>
+  );
+}
 
   if (error) {
     return (

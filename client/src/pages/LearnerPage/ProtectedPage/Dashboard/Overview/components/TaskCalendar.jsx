@@ -17,7 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 // --- API Base URL ---
-const API_URL = "http://localhost:3000/api/tasks";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // --- Utility Functions ---
 const isSameDay = (d1, d2) => {

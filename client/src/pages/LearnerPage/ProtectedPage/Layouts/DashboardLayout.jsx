@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, createContext } from "react";
+import { useState, useRef, useEffect, createContext, Suspense } from "react"; // <-- 1. ADD Suspense
 import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -19,6 +19,10 @@ import Notifications from "../Dashboard/components/NotificationPanel";
 import { ThemeToggleButton } from "../Dashboard/Learn/components/ThemeToggleButton";
 
 import { LayoutContext } from "../Context/LayoutContext";
+
+// <-- 2. ADD THIS IMPORT
+// (Assuming you place GenericPageSkeleton.js in the same folder as CommandPalette.js)
+import GenericPageSkeleton from "./GenericPageSkeleton";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -256,7 +260,10 @@ const DashboardLayout = () => {
             isFullScreen ? "" : "mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8"
           }
         >
-          <Outlet />
+          {/* <-- 3. ADD THE SUSPENSE WRAPPER --> */}
+          <Suspense fallback={<GenericPageSkeleton />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </LayoutContext.Provider>
