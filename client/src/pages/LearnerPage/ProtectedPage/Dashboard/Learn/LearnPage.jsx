@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 // --- (Skeleton definitions are removed) ---
 
 // <-- 1. IMPORT the skeleton from its new file
-import { LearnPageSkeleton } from "./components/LearnPageSkeleton"; 
+import { LearnPageSkeleton } from "./components/LearnPageSkeleton";
 
 // --- Reusable UI Components (Themed) ---
 
