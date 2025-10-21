@@ -963,13 +963,17 @@ export const getUserDashboard = async (req, res) => {
     const quoteOfTheDay = global.quoteCache.quote;
 
     // --- 🔟 Focus Section (keep link from first code) ---
-    const focusSection = focusData
-      ? {
-          title: `Learn '${focusData.course_title}'`,
-          link: `/dashboard/learn/paths/${focusData.path_id}/courses/${focusData.course_slug}`,
-          cta: "Continue",
-        }
-      : null;
+const focusSection = focusData
+  ? {
+      title: `Start '${focusData.course_title}'`,
+      link: `/dashboard/learn/paths/${focusData.path_id}/courses/${focusData.course_slug}`,
+      cta: "Start Learning",
+    }
+  : {
+      title: null,
+      link: null,
+      cta: null,
+    };
 
     // --- ✅ Final Response ---
     res.json({
