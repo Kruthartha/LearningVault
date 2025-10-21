@@ -8,6 +8,8 @@ import courseRoutes from "./routes/courseRoutes.js"
 import userProgressRoutes from "./routes/userProgressRoutes.js"
 import executeRoutes from "./routes/executeRoutes.js";
 import problemRoutes from "./routes/problemRoutes.js";
+import userTasksRoutes from "./routes/userTasks.js";
+import quotesRoutes from "./routes/quotesRoutes.js";
 
 
 dotenv.config({ path: ".env" });
@@ -50,6 +52,8 @@ app.use("/api/course", courseRoutes);
 app.use("/api/user", userProgressRoutes);
 app.use("/api/runtime", executeRoutes);
 app.use("/api/problems", problemRoutes);
+app.use("/api/tasks", userTasksRoutes);
+app.use("/api/quotes", quotesRoutes); 
             
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
