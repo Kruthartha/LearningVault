@@ -320,510 +320,7 @@ export const getUserStreak = async (req, res) => {
   }
 };
 
-// export const getUserDashboard = async (req, res) => {
-//   const userId = req.user.id;
 
-//   try {
-//     // --- 1️⃣ Get Focus (current lesson, course, and path) ---
-//     const focusQuery = `
-//       SELECT
-//         ul.current_lesson_id AS lesson_id,
-//         l.title AS lesson_title,
-//         cm.course_id AS course_id,
-//         c.title AS course_title,
-//         c.slug AS course_slug,
-//         m.id AS module_id,
-//         p.id AS path_id,
-//         p.title AS path_title,
-//         p.track_name AS path_slug
-//       FROM user_modules ul
-//       JOIN modules m ON ul.module_id = m.id
-//       JOIN course_modules cm ON m.id = cm.module_id
-//       JOIN courses c ON cm.course_id = c.id
-//       JOIN lessons l ON ul.current_lesson_id = l.id
-//       JOIN learning_path_courses lpc ON c.id = lpc.course_id
-//       JOIN learning_paths p ON lpc.learning_path_id = p.id
-//       WHERE ul.user_id = $1 AND ul.status != 'completed'
-//       ORDER BY ul.updated_at ASC
-//       LIMIT 1
-//     `;
-//     const focusResult = await pool.query(focusQuery, [userId]);
-//     const focusData = focusResult.rows[0] || null;
-
-//     // --- 2️⃣ Learning Activity (all contributions) ---
-//     const activityResult = await pool.query(
-//       `SELECT activity_date, SUM(activity_count) AS contributions
-//        FROM user_activity_log
-//        WHERE user_id = $1
-//        GROUP BY activity_date
-//        ORDER BY activity_date ASC`,
-//       [userId]
-//     );
-
-//     // Map for quick lookup by day
-//     const activityMap = new Map(
-//       activityResult.rows.map((r) => [
-//         dayjs(r.activity_date).format("YYYY-MM-DD"),
-//         parseInt(r.contributions, 10),
-//       ])
-//     );
-
-//     const today = dayjs();
-//     const days = Array.from({ length: 365 }, (_, i) =>
-//       today.subtract(364 - i, "day")
-//     );
-
-//     const activityData = days.map((d) => ({
-//       date: d.format("YYYY-MM-DD"),
-//       count: activityMap.get(d.format("YYYY-MM-DD")) || 0,
-//     }));
-
-//     // --- 3️⃣ Calculate streaks ---
-//     let longestStreak = 0;
-//     let tempStreak = 0;
-//     for (const day of activityData) {
-//       if (day.count > 0) tempStreak++;
-//       else {
-//         longestStreak = Math.max(longestStreak, tempStreak);
-//         tempStreak = 0;
-//       }
-//     }
-//     longestStreak = Math.max(longestStreak, tempStreak);
-
-//     let currentStreak = 0;
-//     for (let i = activityData.length - 1; i >= 0; i--) {
-//       if (activityData[i].count > 0) currentStreak++;
-//       else break;
-//     }
-
-//     // --- 4️⃣ Skills Unlocked (completed courses) ---
-//     const skillsResult = await pool.query(
-//       `SELECT COUNT(*) AS skills_unlocked
-//        FROM user_courses
-//        WHERE user_id = $1 AND status = 'completed'`,
-//       [userId]
-//     );
-//     const skillsUnlocked = parseInt(
-//       skillsResult.rows[0]?.skills_unlocked || 0,
-//       10
-//     );
-
-//     // --- 5️⃣ XP Level ---
-//     const xpResult = await pool.query(
-//       `SELECT COALESCE(SUM(activity_count), 0) AS xp
-//        FROM user_activity_log
-//        WHERE user_id = $1`,
-//       [userId]
-//     );
-//     const xpLevel = Math.floor((xpResult.rows[0]?.xp || 0) / 100);
-
-//     // --- 6️⃣ This Week Hours Spent ---
-//     const weekResult = await pool.query(
-//       `SELECT COALESCE(SUM(time_spent), 0) AS minutes
-//        FROM user_lessons
-//        WHERE user_id = $1 AND updated_at >= NOW() - INTERVAL '7 days'`,
-//       [userId]
-//     );
-//     const thisWeekHours = (weekResult.rows[0]?.minutes || 0) / 60;
-
-//     // --- 7️⃣ Prepare Focus Link ---
-// const focusLink = focusData
-//   ? `/dashboard/learn/paths/${focusData.path_id}/courses/${focusData.course_slug}`
-//   : null;
-
-//     // --- 8️⃣ Final Response ---
-//     const response = {
-//       ok: true,
-//       data: {
-//         focus: {
-//           title: focusData ? `Start '${focusData.course_title}'` : null,
-//           link: focusLink,
-//           cta: focusData ? "Start Learning" : null,
-//         },
-//         streak: currentStreak,
-//         skillsUnlocked,
-//         level: xpLevel,
-//         thisWeekHours,
-//         learningActivity: {
-//           total: activityData.reduce((sum, d) => sum + d.count, 0),
-//           longestStreak,
-//           currentStreak,
-//           activityData,
-//         },
-//       },
-//     };
-
-//     res.json(response);
-//   } catch (err) {
-//     console.error("Error fetching dashboard:", err);
-//     res.status(500).json({ ok: false, message: "Failed to fetch dashboard" });
-//   }
-// };
-
-// export const getUserDashboard = async (req, res) => {
-//   const userId = req.user.id;
-
-//   try {
-//     // --- 1️⃣ Focus (current lesson, course, path) ---
-//     const focusQuery = `
-//       SELECT
-//         ul.current_lesson_id AS lesson_id,
-//         l.title AS lesson_title,
-//         cm.course_id AS course_id,
-//         c.title AS course_title,
-//         c.slug AS course_slug,
-//         m.id AS module_id,
-//         p.id AS path_id,
-//         p.title AS path_title,
-//         p.track_name AS path_slug
-//       FROM user_modules ul
-//       JOIN modules m ON ul.module_id = m.id
-//       JOIN course_modules cm ON m.id = cm.module_id
-//       JOIN courses c ON cm.course_id = c.id
-//       JOIN lessons l ON ul.current_lesson_id = l.id
-//       JOIN learning_path_courses lpc ON c.id = lpc.course_id
-//       JOIN learning_paths p ON lpc.learning_path_id = p.id
-//       WHERE ul.user_id = $1 AND ul.status != 'completed'
-//       ORDER BY ul.updated_at ASC
-//       LIMIT 1
-//     `;
-//     const focusResult = await pool.query(focusQuery, [userId]);
-//     const focusData = focusResult.rows[0] || null;
-
-//     // --- 2️⃣ Learning Activity (all contributions) ---
-//     const activityResult = await pool.query(
-//       `SELECT activity_date, SUM(activity_count) AS contributions
-//        FROM user_activity_log
-//        WHERE user_id = $1
-//        GROUP BY activity_date
-//        ORDER BY activity_date ASC`,
-//       [userId]
-//     );
-
-//     const activityMap = new Map(
-//       activityResult.rows.map((r) => [
-//         dayjs(r.activity_date).format("YYYY-MM-DD"),
-//         parseInt(r.contributions, 10),
-//       ])
-//     );
-
-//     const today = dayjs();
-//     const days = Array.from({ length: 365 }, (_, i) =>
-//       today.subtract(364 - i, "day")
-//     );
-
-//     const activityData = days.map((d) => ({
-//       date: d.format("YYYY-MM-DD"),
-//       count: activityMap.get(d.format("YYYY-MM-DD")) || 0,
-//     }));
-
-//     // --- 3️⃣ Streaks ---
-//     let longestStreak = 0;
-//     let tempStreak = 0;
-//     for (const day of activityData) {
-//       if (day.count > 0) tempStreak++;
-//       else {
-//         longestStreak = Math.max(longestStreak, tempStreak);
-//         tempStreak = 0;
-//       }
-//     }
-//     longestStreak = Math.max(longestStreak, tempStreak);
-
-//     let currentStreak = 0;
-//     for (let i = activityData.length - 1; i >= 0; i--) {
-//       if (activityData[i].count > 0) currentStreak++;
-//       else break;
-//     }
-
-//     // --- 4️⃣ Skills Unlocked ---
-//     const skillsResult = await pool.query(
-//       `SELECT COUNT(*) AS skills_unlocked
-//        FROM user_courses
-//        WHERE user_id = $1 AND status = 'completed'`,
-//       [userId]
-//     );
-//     const skillsUnlocked = parseInt(
-//       skillsResult.rows[0]?.skills_unlocked || 0,
-//       10
-//     );
-
-//     // --- 5️⃣ XP Level ---
-//     const xpResult = await pool.query(
-//       `SELECT COALESCE(SUM(activity_count), 0) AS xp
-//        FROM user_activity_log
-//        WHERE user_id = $1`,
-//       [userId]
-//     );
-//     const xpLevel = Math.floor((xpResult.rows[0]?.xp || 0) / 100);
-
-//     // --- 6️⃣ This Week Hours ---
-//     const weekResult = await pool.query(
-//       `SELECT COALESCE(SUM(time_spent), 0) AS minutes
-//        FROM user_lessons
-//        WHERE user_id = $1 AND updated_at >= NOW() - INTERVAL '7 days'`,
-//       [userId]
-//     );
-//     const thisWeekHours = (weekResult.rows[0]?.minutes || 0) / 60;
-
-//     // --- 7️⃣ Tasks ---
-//     const tasksResult = await pool.query(
-//       `SELECT * FROM user_tasks WHERE user_id=$1 ORDER BY date ASC`,
-//       [userId]
-//     );
-
-//     const tasks = tasksResult.rows;
-
-//     const tasksByDate = {};
-//     tasks.forEach((task) => {
-//       const dateKey = format(new Date(task.date), "yyyy-MM-dd");
-//       if (!tasksByDate[dateKey]) tasksByDate[dateKey] = [];
-//       tasksByDate[dateKey].push({
-//         id: task.id,
-//         title: task.title,
-//         course: task.course,
-//         date: task.date,
-//         priority: task.priority,
-//         time: task.time,
-//         status: task.status,
-//       });
-//     });
-
-//     // --- 8️⃣ Focus Link ---
-//     const focusLink = focusData
-//       ? `/dashboard/learn/paths/${focusData.path_id}/courses/${focusData.course_slug}`
-//       : null;
-
-//     // --- 9️⃣ Final Response ---
-//     const response = {
-//       ok: true,
-//       data: {
-//         focus: {
-//           title: focusData ? `Start '${focusData.course_title}'` : null,
-//           link: focusLink,
-//           cta: focusData ? "Start Learning" : null,
-//         },
-//         streak: currentStreak,
-//         skillsUnlocked,
-//         level: xpLevel,
-//         thisWeekHours,
-//         learningActivity: {
-//           total: activityData.reduce((sum, d) => sum + d.count, 0),
-//           longestStreak,
-//           currentStreak,
-//           activityData,
-//         },
-//         tasks, // full tasks array
-//         tasksByDate, // grouped by date for calendar view
-//       },
-//     };
-
-//     res.json(response);
-//   } catch (err) {
-//     console.error("Error fetching dashboard:", err);
-//     res.status(500).json({ ok: false, message: "Failed to fetch dashboard" });
-//   }
-// };
-
-
-// export const getUserDashboard = async (req, res) => {
-//   const userId = req.user.id;
-
-//   try {
-//     // --- 1️⃣ Get user info ---
-//     const userResult = await pool.query(
-//       `SELECT first_name FROM users WHERE id = $1`,
-//       [userId]
-//     );
-//     const firstName = userResult.rows[0]?.first_name || "Learner";
-
-//     // --- 2️⃣ Current focus (ongoing module) ---
-//     const focusQuery = `
-//       SELECT 
-//         ul.current_lesson_id AS lesson_id,
-//         l.title AS lesson_title,
-//         cm.course_id AS course_id,
-//         c.title AS course_title,
-//         c.slug AS course_slug,
-//         m.id AS module_id,
-//         p.id AS path_id,
-//         p.track_name AS path_slug,
-//         ul.status AS module_status
-//       FROM user_modules ul
-//       JOIN modules m ON ul.module_id = m.id
-//       JOIN course_modules cm ON m.id = cm.module_id
-//       JOIN courses c ON cm.course_id = c.id
-//       JOIN lessons l ON ul.current_lesson_id = l.id
-//       JOIN learning_path_courses lpc ON c.id = lpc.course_id
-//       JOIN learning_paths p ON lpc.learning_path_id = p.id
-//       WHERE ul.user_id = $1 AND ul.status != 'completed'
-//       ORDER BY ul.updated_at ASC
-//       LIMIT 1
-//     `;
-
-
-//     const focusResult = await pool.query(focusQuery, [userId]);
-//     const focusData = focusResult.rows[0] || null;
-
-//     // --- 3️⃣ Learning activity ---
-//     const activityResult = await pool.query(
-//       `SELECT activity_date, SUM(activity_count) AS contributions
-//        FROM user_activity_log
-//        WHERE user_id = $1
-//        GROUP BY activity_date
-//        ORDER BY activity_date ASC`,
-//       [userId]
-//     );
-
-//     const activityMap = new Map(
-//       activityResult.rows.map((r) => [
-//         dayjs(r.activity_date).format("YYYY-MM-DD"),
-//         parseInt(r.contributions, 10),
-//       ])
-//     );
-
-//     const today = dayjs();
-//     const days = Array.from({ length: 365 }, (_, i) =>
-//       today.subtract(364 - i, "day")
-//     );
-
-//     const activityData = days.map((d) => ({
-//       date: d.format("YYYY-MM-DD"),
-//       count: activityMap.get(d.format("YYYY-MM-DD")) || 0,
-//     }));
-
-//     // --- 4️⃣ Calculate streaks ---
-//     let longestStreak = 0;
-//     let tempStreak = 0;
-//     for (const day of activityData) {
-//       if (day.count > 0) tempStreak++;
-//       else {
-//         longestStreak = Math.max(longestStreak, tempStreak);
-//         tempStreak = 0;
-//       }
-//     }
-//     longestStreak = Math.max(longestStreak, tempStreak);
-
-//     let currentStreak = 0;
-//     for (let i = activityData.length - 1; i >= 0; i--) {
-//       if (activityData[i].count > 0) currentStreak++;
-//       else break;
-//     }
-
-//     // --- 5️⃣ Skills unlocked ---
-//     const skillsResult = await pool.query(
-//       `SELECT COUNT(*) AS skills_unlocked
-//        FROM user_courses
-//        WHERE user_id = $1 AND status = 'completed'`,
-//       [userId]
-//     );
-//     const skillsUnlocked = parseInt(skillsResult.rows[0]?.skills_unlocked || 0, 10);
-
-//     // --- 6️⃣ XP Level ---
-//     const xpResult = await pool.query(
-//       `SELECT COALESCE(SUM(activity_count), 0) AS xp
-//        FROM user_activity_log
-//        WHERE user_id = $1`,
-//       [userId]
-//     );
-//     const xpLevel = Math.floor((xpResult.rows[0]?.xp || 0) / 100);
-
-//     // --- 7️⃣ Weekly hours ---
-//     const weekResult = await pool.query(
-//       `SELECT COALESCE(SUM(time_spent), 0) AS minutes
-//        FROM user_lessons
-//        WHERE user_id = $1 AND updated_at >= NOW() - INTERVAL '7 days'`,
-//       [userId]
-//     );
-//     const thisWeekHours = (weekResult.rows[0]?.minutes || 0) / 60;
-
-//     // --- 8️⃣ Tasks ---
-//     const tasksResult = await pool.query(
-//       `SELECT * FROM user_tasks WHERE user_id=$1 ORDER BY date ASC`,
-//       [userId]
-//     );
-//     const tasks = tasksResult.rows;
-//     const tasksByDate = {};
-//     tasks.forEach((task) => {
-//       const dateKey = format(new Date(task.date), "yyyy-MM-dd");
-//       if (!tasksByDate[dateKey]) tasksByDate[dateKey] = [];
-//       tasksByDate[dateKey].push({
-//         id: task.id,
-//         title: task.title,
-//         course: task.course,
-//         date: task.date,
-//         priority: task.priority,
-//         time: task.time,
-//         status: task.status,
-//       });
-//     });
-
-//     // --- 9️⃣ Quote of the day ---
-//     const todayKey = new Date().toISOString().split("T")[0];
-//     if (!global.quoteCache) global.quoteCache = { date: null, quote: null };
-
-//     if (global.quoteCache.date !== todayKey) {
-//       const quotes = await loadQuotes();
-//       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-//       global.quoteCache = { date: todayKey, quote: randomQuote };
-//     }
-//     const quoteOfTheDay = global.quoteCache.quote;
-
-//     // --- 🔟 Focus Section (dynamic) ---
-//     let focusSection;
-//     if (focusData) {
-//       // User already started
-//       focusSection = {
-//         title: `Continue '${focusData.course_title}'`,
-//         link: `/dashboard/learn/paths/${focusData.path_slug}/courses/${focusData.course_slug}`,
-//         cta: "Continue Learning",
-//       };
-//     } else {
-//       // Get first available course dynamically
-//       const defaultResult = await pool.query(`
-//         SELECT 
-//           p.track_name AS path_slug,
-//           c.slug AS course_slug,
-//           c.title AS course_title
-//         FROM learning_paths p
-//         JOIN learning_path_courses lpc ON p.id = lpc.learning_path_id
-//         JOIN courses c ON lpc.course_id = c.id
-//         ORDER BY p.id ASC, c.id ASC
-//         LIMIT 1
-//       `);
-//       const defaultCourse = defaultResult.rows[0];
-//       focusSection = {
-//         title: `Start '${defaultCourse.course_title}'`,
-//         link: `/dashboard/learn/paths/${defaultCourse.path_slug}/courses/${defaultCourse.course_slug}`,
-//         cta: "Start Learning",
-//       };
-//     }
-
-//     // --- ✅ Final response ---
-//     res.json({
-//       ok: true,
-//       data: {
-//         firstName,
-//         focus: focusSection,
-//         streak: currentStreak,
-//         skillsUnlocked,
-//         level: xpLevel,
-//         thisWeekHours,
-//         learningActivity: {
-//           total: activityData.reduce((sum, d) => sum + d.count, 0),
-//           longestStreak,
-//           currentStreak,
-//           activityData,
-//         },
-//         tasks,
-//         tasksByDate,
-//         quoteOfTheDay,
-//       },
-//     });
-//   } catch (err) {
-//     console.error("Error fetching dashboard:", err);
-//     res.status(500).json({ ok: false, message: "Failed to fetch dashboard" });
-//   }
-// };
 
 
 export const getUserDashboard = async (req, res) => {
@@ -999,5 +496,189 @@ const focusSection = focusData
   } catch (err) {
     console.error("Error fetching dashboard:", err);
     res.status(500).json({ ok: false, message: "Failed to fetch dashboard" });
+  }
+};
+
+export const getUserLearnProgress = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    // --- Run streak and progress queries in parallel ---
+    const [streakResult, pathsResult] = await Promise.all([
+      // --- 1️⃣ Streak calculation ---
+      (async () => {
+        const { rows } = await pool.query(
+          `SELECT activity_date
+           FROM user_activity_log
+           WHERE user_id = $1
+           ORDER BY activity_date ASC`,
+          [userId]
+        );
+
+        let current_streak = 0;
+        let longest_streak = 0;
+        const week_streak_activity = {
+          Monday: "No",
+          Tuesday: "No",
+          Wednesday: "No",
+          Thursday: "No",
+          Friday: "No",
+          Saturday: "No",
+          Sunday: "No",
+        };
+
+        if (rows.length > 0) {
+          const dates = rows.map(r => new Date(r.activity_date));
+
+          // Calculate current & longest streak
+          let current = 1;
+          let longest = 1;
+          for (let i = 1; i < dates.length; i++) {
+            const diffDays = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+            if (diffDays === 1) current++;
+            else if (diffDays > 1) current = 1;
+            longest = Math.max(longest, current);
+          }
+
+          const lastActivity = dates[dates.length - 1];
+          const today = new Date();
+          const diffFromToday = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
+          if (diffFromToday > 1) current = 0;
+
+          current_streak = current;
+          longest_streak = longest;
+
+          // Weekly activity
+          const todayIndex = new Date().getDay();
+          const diffToMonday = todayIndex === 0 ? 6 : todayIndex - 1;
+          const monday = new Date();
+          monday.setDate(monday.getDate() - diffToMonday);
+          monday.setHours(0, 0, 0, 0);
+
+          dates.filter(d => d >= monday && d <= new Date()).forEach(d => {
+            const day = d.toLocaleString("en-US", { weekday: "long" });
+            week_streak_activity[day] = "Yes";
+          });
+        }
+
+        return { current_streak, longest_streak, week_streak_activity };
+      })(),
+
+      // --- 2️⃣ Progress calculation ---
+      (async () => {
+        const { rows: paths } = await pool.query(
+          `SELECT lp.*, ulp.current_course_id
+           FROM user_learning_paths ulp
+           JOIN learning_paths lp ON ulp.learning_path_id = lp.id
+           WHERE ulp.user_id = $1`,
+          [userId]
+        );
+
+        if (paths.length === 0) return [];
+
+        const pathIds = paths.map(p => p.id);
+
+        const { rows: courses } = await pool.query(
+          `SELECT c.*, uc.status, uc.current_module_id, lpc.learning_path_id
+           FROM learning_path_courses lpc
+           JOIN courses c ON lpc.course_id = c.id
+           LEFT JOIN user_courses uc ON uc.course_id = c.id AND uc.user_id = $1
+           WHERE lpc.learning_path_id = ANY($2::text[])`,
+          [userId, pathIds]
+        );
+
+        const courseIds = courses.map(c => c.id);
+
+        const { rows: modules } = await pool.query(
+          `SELECT m.*, um.status, um.current_lesson_id, cm.course_id
+           FROM course_modules cm
+           JOIN modules m ON cm.module_id = m.id
+           LEFT JOIN user_modules um ON um.module_id = m.id AND um.user_id = $1
+           WHERE cm.course_id = ANY($2::text[])`,
+          [userId, courseIds]
+        );
+
+        const moduleIds = modules.map(m => m.id);
+
+        const { rows: lessons } = await pool.query(
+          `SELECT ml.module_id, l.id AS lesson_id, l.title, l.content,
+                  CASE WHEN um_lesson.user_id IS NOT NULL THEN 'completed' ELSE 'locked' END AS status
+           FROM module_lessons ml
+           JOIN lessons l ON ml.lesson_id = l.id
+           LEFT JOIN user_modules um_lesson
+             ON um_lesson.module_id = ml.module_id
+             AND um_lesson.current_lesson_id >= l.id
+             AND um_lesson.user_id = $1
+           WHERE ml.module_id = ANY($2::text[])
+           ORDER BY ml.position ASC`,
+          [userId, moduleIds]
+        );
+
+        const lessonsByModule = {};
+        lessons.forEach(l => {
+          if (!lessonsByModule[l.module_id]) lessonsByModule[l.module_id] = [];
+          lessonsByModule[l.module_id].push({
+            id: l.lesson_id,
+            title: l.title,
+            content: l.content,
+            status: l.status
+          });
+        });
+
+        const modulesWithProgress = modules.map(m => {
+          const moduleLessons = lessonsByModule[m.id] || [];
+          const completedLessons = moduleLessons.filter(l => l.status === "completed").length;
+          const progress = moduleLessons.length > 0
+            ? Math.round((completedLessons / moduleLessons.length) * 100)
+            : 0;
+
+          return {
+            id: m.id,
+            title: m.title,
+            status: m.status || "locked",
+            current_lesson_id: m.current_lesson_id,
+            lessons: moduleLessons,
+            progress,
+            course_id: m.course_id
+          };
+        });
+
+        return paths.map(lp => {
+          const lpCourses = courses.filter(c => c.learning_path_id === lp.id).map(c => {
+            const courseModules = modulesWithProgress.filter(m => m.course_id === c.id);
+            const courseProgress = courseModules.length
+              ? Math.round(courseModules.reduce((sum, m) => sum + m.progress, 0) / courseModules.length)
+              : 0;
+
+            return {
+              id: c.id,
+              title: c.title,
+              status: c.status || "locked",
+              current_module_id: c.current_module_id,
+              progress: courseProgress,
+              modules: courseModules
+            };
+          });
+
+          return {
+            id: lp.id,
+            title: lp.title,
+            current_course_id: lp.current_course_id,
+            courses: lpCourses
+          };
+        });
+      })()
+    ]);
+
+    // --- Send combined response ---
+    res.json({
+      ok: true,
+      streak: streakResult,
+      progress: pathsResult
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, message: "Failed to fetch dashboard data" });
   }
 };
