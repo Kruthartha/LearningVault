@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import LearnerOverview from "./components/LearnerOverview";
-import { OverviewPageSkeleton } from "./components/OverviewPageSkeleton"; // <-- 1. IMPORT SKELETON
+import { OverviewPageSkeleton } from "./components/OverviewPageSkeleton";
+// Import your new Axios wrapper
+import api from "../../../../../services/api";
 
 // --- Mock Data (used as a template and for missing API data) ---
-// This is the static data you provided. We'll use it as a base.
 const mockData = {
   // This user object will be OVERWRITTEN by the API data
   user: { first_name: " ", last_name: "S Gowda" },
@@ -232,10 +233,6 @@ const transformApiData = (apiData) => {
 
 // --- Main Page Component ---
 
-// Use a placeholder URL or environment variable
-const API_URL = import.meta.env.VITE_API_URL;
-
-// <-- 2. RENAMED COMPONENT
 const OverviewPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -243,29 +240,18 @@ const OverviewPage = () => {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      // Get the token from wherever you store it (e.g., localStorage)
+      // Pre-emptive check for token
       const token = localStorage.getItem("accessToken");
-
       if (!token) {
         setError("You are not logged in.");
         setIsLoading(false);
         return;
       }
-
+      
       try {
-        const response = await fetch(`${API_URL}/user/dashboard`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.message || "Failed to fetch dashboard data");
-        }
-
-        const apiResponse = await response.json();
+        // Use the 'api' wrapper from api.js
+        const response = await api.get("/user/dashboard");
+        const apiResponse = response.data;
 
         if (apiResponse.ok && apiResponse.data) {
           // Transform the API data into the shape our component needs
@@ -273,22 +259,44 @@ const OverviewPage = () => {
           setDashboardData(finalData);
         } else {
           throw new Error(
-            "API response was not successful or data is missing."
+            apiResponse.message ||
+              "API response was not successful or data is missing."
           );
         }
       } catch (err) {
-        setError(err.message);
+        // This will catch errors from Axios (e.g., 404, 500)
+        // or if the token refresh fails
+        let errorMessage = "An unexpected error occurred.";
+
+        if (err.response) {
+          // Server responded with a non-2xx status
+          errorMessage = err.response.data?.message || err.message;
+          if (err.response.status === 401) {
+            errorMessage = "Your session has expired. Please log in again.";
+            // Optionally redirect to login:
+            // window.location.href = '/login';
+          }
+        } else if (err.request) {
+          // No response was received
+          errorMessage = "Network error. Please check your connection.";
+        } else {
+          // Other setup error
+          errorMessage = err.message;
+        }
+
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []); // The empty array [] means this effect runs once when the component mounts
+  }, []); 
+  
+  // The empty array [] means this effect runs once when the component mounts
 
   // --- Render Logic ---
 
-  // <-- 3. USE THE SKELETON INSTEAD OF SPINNER
   if (isLoading) {
     return <OverviewPageSkeleton />;
   }
@@ -311,4 +319,4 @@ const OverviewPage = () => {
   return <LearnerOverview data={dashboardData} />;
 };
 
-export default OverviewPage; // <-- 2. RENAMED EXPORT
+export default OverviewPage;

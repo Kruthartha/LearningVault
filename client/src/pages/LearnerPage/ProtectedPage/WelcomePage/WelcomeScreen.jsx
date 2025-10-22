@@ -20,8 +20,7 @@ import {
   Globe,
   Lightbulb,
 } from "lucide-react";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import api from "../../../../services/api";
 
 const WelcomeScreen = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -50,10 +49,8 @@ const WelcomeScreen = () => {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        const res = await fetch(
-          `${API_URL}/course/learning-tracks/`
-        );
-        const data = await res.json();
+        const res = await api.get("/course/learning-tracks/");
+        const data = res.data;
 
         // Ensure data is an array
         const tracksArray = Array.isArray(data) ? data : [data];
@@ -65,10 +62,10 @@ const WelcomeScreen = () => {
           description: track.description,
           duration: track.duration,
           skills: track.skills,
-          color: track.color || "blue", // fallback color
+          color: track.color || "blue",
           popular: track.popular || false,
           locked: track.locked || false,
-          icon: trackIconMap[track.id] || Globe, // map by track.id or fallback
+          icon: trackIconMap[track.id] || Globe,
         }));
 
         setLearningTracks(mappedTracks);
@@ -465,33 +462,23 @@ const WelcomeScreen = () => {
     };
 
     try {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/user/onboarding`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await api.post("/user/onboarding", payload);
 
-      const data = await res.json();
+      const data = res.data;
+      localStorage.setItem("welcomeSeen", "true");
 
-      if (res.ok) {
-        localStorage.setItem("welcomeSeen", "true");
-        if (data.onboarding) {
-          localStorage.setItem("userProfile", JSON.stringify(data.onboarding));
-        }
-        window.location.href = "/dashboard";
-      } else {
-        alert(`Error: ${data.message}`);
+      if (data.onboarding) {
+        localStorage.setItem("userProfile", JSON.stringify(data.onboarding));
       }
+
+      // Redirect to dashboard
+      window.location.href = "/dashboard";
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong. Please try again.");
+      console.error("Onboarding error:", err);
+      const msg =
+        err.response?.data?.message ||
+        "Something went wrong. Please try again.";
+      alert(`Error: ${msg}`);
     } finally {
       setIsLoading(false);
     }

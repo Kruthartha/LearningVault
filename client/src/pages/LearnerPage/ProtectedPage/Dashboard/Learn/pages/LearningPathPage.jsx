@@ -7,9 +7,9 @@ import {
   CheckCircle,
   Target,
 } from "lucide-react";
+import api from "../../../../../../services/api";
 
 // --- Reusable UI Component (Themed) ---
-const API_URL = import.meta.env.VITE_API_URL;
 
 const ProgressBar = ({ progress }) => {
   const getColorClass = (p) => {
@@ -232,42 +232,62 @@ export default function LearningPathPage() {
   const [error, setError] = useState(null);
   const [isVisible, setIsVisible] = useState(false); // For fade-in
 
+  // --- 3. REFACTORED API CALL in useEffect ---
   useEffect(() => {
     const fetchPathData = async () => {
-      // Reset visibility on new load
       setIsLoading(true);
       setIsVisible(false);
 
+      // Pre-emptive check for token
       const token = localStorage.getItem("accessToken");
       if (!token) {
         setError("Authentication required. Please log in.");
         setIsLoading(false);
         return;
       }
+
       try {
-        const response = await fetch(`${API_URL}/user/progress/${pathSlug}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok)
-          throw new Error(`Failed to fetch data: ${response.statusText}`);
-        const data = await response.json();
+        // Use the 'api' wrapper with a relative URL
+        // No headers needed; the interceptor adds the token
+        const response = await api.get(`/user/progress/${pathSlug}`);
+
+        // Axios puts the response body in response.data
+        const data = response.data;
         setPathData(data);
-      } catch (e) {
-        setError(e.message);
+      } catch (err) {
+        // --- 4. IMPROVED AXIOS ERROR HANDLING ---
+        let errorMessage = "An unexpected error occurred.";
+        if (err.response) {
+          // Server responded with a non-2xx status (e.g., 401, 404, 500)
+          errorMessage = err.response.data?.message || err.message;
+          if (err.response.status === 401) {
+            errorMessage = "Authentication required. Please log in again.";
+            // Optionally redirect: navigate('/login');
+          }
+        } else if (err.request) {
+          // No response was received
+          errorMessage = "Network error. Please check your connection.";
+        } else {
+          // Other setup error
+          errorMessage = err.message;
+        }
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
     };
     fetchPathData();
   }, [pathSlug]);
+  // --- END OF REFACTOR ---
 
-  // Effect for fade-in animation
+  // Effect for fade-in animation (Unchanged)
   useEffect(() => {
     if (!isLoading) {
       setIsVisible(true);
     }
   }, [isLoading]);
 
+  // Event Handlers (Unchanged)
   const handleContinuePath = () => {
     if (!pathData?.courses) return;
     const nextCourse = pathData.courses.find(
@@ -280,10 +300,12 @@ export default function LearningPathPage() {
     }
   };
 
+  // Render Logic (Unchanged)
+
   // Render Skeleton Loader
   if (isLoading) return <LearningPathPageSkeleton />;
 
-  // Render Error State (with fade-in)
+  // Render Error State
   if (error)
     return (
       <div
@@ -295,7 +317,7 @@ export default function LearningPathPage() {
       </div>
     );
 
-  // Render No Data State (with fade-in)
+  // Render No Data State
   if (!pathData)
     return (
       <div
@@ -312,7 +334,7 @@ export default function LearningPathPage() {
     pathData.courses?.filter((c) => c.progress === 100).length || 0;
   const overallProgress = pathData.progress || 0;
 
-  // Render Main Content (with fade-in)
+  // Render Main Content
   return (
     <div
       className={`min-h-screen bg-neutral-50 text-neutral-800 dark:bg-[#0d1117] dark:text-neutral-300 transition-opacity duration-500 ease-in-out ${
@@ -320,6 +342,7 @@ export default function LearningPathPage() {
       }`}
     >
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        {/* Header (Unchanged) */}
         <button
           onClick={() => navigate("/dashboard/learn")}
           className="mb-6 flex items-center gap-2 text-sm font-light text-neutral-500 transition-colors hover:text-blue-600 dark:text-neutral-400 dark:hover:text-blue-400"
@@ -327,7 +350,7 @@ export default function LearningPathPage() {
           <ChevronLeft size={16} />
           Back to My Learning
         </button>
-        <header className="mb-16 rounded-2xl border bg-white p-8 dark:bg-[#161b22] border-neutral-200/80 dark:border-[#30363d]">
+        <header className="mb-16 rounded-2xl border bg-white p-8 dark:bg-[#16b22] border-neutral-200/80 dark:border-[#30363d] dark:bg-black">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-center">
             <div className="flex-grow">
               <p className="mb-2 text-sm font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400">
@@ -354,6 +377,8 @@ export default function LearningPathPage() {
             </div>
           </div>
         </header>
+
+        {/* Main Content (Unchanged) */}
         <main className="flex flex-col gap-10">
           {pathData.courses?.map((course, index) => (
             <TimelineStep

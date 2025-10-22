@@ -16,7 +16,7 @@ import {
   Quote,
   ChevronRight,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // It's good practice to import this if you use it
+import { useNavigate } from "react-router-dom";
 
 import ContributionGrid from "./ContributionGrid";
 import Widget from "./Widget";
@@ -42,9 +42,17 @@ const LearnerOverview = ({ data }) => {
   return (
     // Main background for light and dark modes
     <div className=" min-h-screen font-sans dark:bg-[#0E1116]">
-      <div className="max-w-7xl mx-auto space-y-8">
+      {/* MODIFICATION: Added `px-4` for horizontal padding on mobile (so content doesn't
+        touch the screen edges) and `pt-8` for top spacing. 
+      */}
+      <div className="max-w-7xl mx-auto space-y-8 px-4 pt-8">
         <WelcomeHeader user={user} />
 
+        {/* This grid is already mobile-friendly. 
+          By default (on mobile), it's a single column, so the `lg:col-span-2`
+          div (main content) stacks on top of the sidebar div.
+          On large (`lg`) screens, it becomes a 3-column grid.
+        */}
         <div className="grid lg:grid-cols-3 gap-6 items-start">
           {/* --- LEFT (MAIN) COLUMN --- */}
           <div className="lg:col-span-2 space-y-6">
@@ -70,11 +78,13 @@ const LearnerOverview = ({ data }) => {
                 )}
               </div>
             </Widget>
-
-           
           </div>
 
           {/* --- RIGHT (SIDEBAR) COLUMN --- */}
+          {/* On mobile, this div stacks *below* the main column.
+            The `lg:sticky` only applies on large screens.
+            The `space-y-6` correctly spaces all child widgets.
+          */}
           <div className="lg:sticky lg:top-8 space-y-6">
             <Widget title="Quote of the Day">
               {/* Using a specific gradient for quote background for better theming */}
@@ -116,45 +126,47 @@ const LearnerOverview = ({ data }) => {
               </div>
             </Widget>
 
-            <div className="space-y-8">
-              {/* Themed Trending News card */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 dark:bg-[#0e1013] dark:border-[#30363d]">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-medium text-black flex items-center gap-2 dark:text-white">
-                    <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-500" />
-                    Trending Now
-                  </h4>
-                  <button
-                    onClick={() => navigate("/library/newsroom")}
-                    className="text-green-600 font-medium hover:text-green-700 text-sm dark:text-green-500 dark:hover:text-green-400"
+            {/* MODIFICATION: Removed the redundant `div className="space-y-8"` wrapper.
+              This card is now a direct child of the `space-y-6` container,
+              ensuring consistent spacing with the other widgets on mobile.
+            */}
+            {/* Themed Trending News card */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 dark:bg-[#0e1013] dark:border-[#30363d]">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-medium text-black flex items-center gap-2 dark:text-white">
+                  <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-500" />
+                  Trending Now
+                </h4>
+                <button
+                  onClick={() => navigate("/library/newsroom")}
+                  className="text-green-600 font-medium hover:text-green-700 text-sm dark:text-green-500 dark:hover:text-green-400"
+                >
+                  View All
+                </button>
+              </div>
+              <div className="space-y-4">
+                {newsroomData.map((news) => (
+                  <div
+                    key={news.id}
+                    className="border-l-4 border-green-500 pl-4 hover:bg-gray-50 p-2 rounded cursor-pointer dark:hover:bg-slate-800/50"
+                    onClick={() => navigate(`/library/newsroom/${news.id}`)}
                   >
-                    View All
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  {newsroomData.map((news) => (
-                    <div
-                      key={news.id}
-                      className="border-l-4 border-green-500 pl-4 hover:bg-gray-50 p-2 rounded cursor-pointer dark:hover:bg-slate-800/50"
-                      onClick={() => navigate(`/library/newsroom/${news.id}`)}
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium dark:bg-green-500/10 dark:text-green-400">
-                          {news.readTime}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-slate-400">
-                          {news.publishedAt}
-                        </span>
-                      </div>
-                      <h5 className="text-sm font-medium text-black mb-1 hover:text-green-600 dark:text-slate-200 dark:hover:text-green-500">
-                        {news.title}
-                      </h5>
-                      <p className="text-xs text-gray-600 dark:text-slate-400">
-                        {news.excerpt}
-                      </p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium dark:bg-green-500/10 dark:text-green-400">
+                        {news.readTime}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-slate-400">
+                        {news.publishedAt}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <h5 className="text-sm font-medium text-black mb-1 hover:text-green-600 dark:text-slate-200 dark:hover:text-green-500">
+                      {news.title}
+                    </h5>
+                    <p className="text-xs text-gray-600 dark:text-slate-400">
+                      {news.excerpt}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

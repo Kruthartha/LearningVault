@@ -320,9 +320,6 @@ export const getUserStreak = async (req, res) => {
   }
 };
 
-
-
-
 export const getUserDashboard = async (req, res) => {
   const userId = req.user.id;
 
@@ -385,7 +382,8 @@ export const getUserDashboard = async (req, res) => {
     }));
 
     // --- 4️⃣ Streaks ---
-    let longestStreak = 0, tempStreak = 0;
+    let longestStreak = 0,
+      tempStreak = 0;
     for (const day of activityData) {
       if (day.count > 0) tempStreak++;
       else {
@@ -408,7 +406,10 @@ export const getUserDashboard = async (req, res) => {
        WHERE user_id = $1 AND status = 'completed'`,
       [userId]
     );
-    const skillsUnlocked = parseInt(skillsResult.rows[0]?.skills_unlocked || 0, 10);
+    const skillsUnlocked = parseInt(
+      skillsResult.rows[0]?.skills_unlocked || 0,
+      10
+    );
 
     // --- 6️⃣ XP Level ---
     const xpResult = await pool.query(
@@ -460,17 +461,17 @@ export const getUserDashboard = async (req, res) => {
     const quoteOfTheDay = global.quoteCache.quote;
 
     // --- 🔟 Focus Section (keep link from first code) ---
-const focusSection = focusData
-  ? {
-      title: `Start '${focusData.course_title}'`,
-      link: `/dashboard/learn/paths/${focusData.path_id}/courses/${focusData.course_slug}`,
-      cta: "Start Learning",
-    }
-  : {
-      title: "Explore Learn Section ",
-      link: `/dashboard/learn/`,
-      cta: "Explore",
-    };
+    const focusSection = focusData
+      ? {
+          title: `Start '${focusData.course_title}'`,
+          link: `/dashboard/learn/paths/${focusData.path_id}/courses/${focusData.course_slug}`,
+          cta: "Start Learning",
+        }
+      : {
+          title: "Explore Learn Section ",
+          link: `/dashboard/learn/`,
+          cta: "Explore",
+        };
 
     // --- ✅ Final Response ---
     res.json({
@@ -499,186 +500,612 @@ const focusSection = focusData
   }
 };
 
+// export const getUserLearnProgress = async (req, res) => {
+//   const userId = req.user.id;
+
+//   try {
+//     // --- Run streak and progress queries in parallel ---
+//     const [streakResult, pathsResult] = await Promise.all([
+//       // --- 1️⃣ Streak calculation ---
+//       (async () => {
+//         const { rows } = await pool.query(
+//           `SELECT activity_date
+//            FROM user_activity_log
+//            WHERE user_id = $1
+//            ORDER BY activity_date ASC`,
+//           [userId]
+//         );
+
+//         let current_streak = 0;
+//         let longest_streak = 0;
+//         const week_streak_activity = {
+//           Monday: "No",
+//           Tuesday: "No",
+//           Wednesday: "No",
+//           Thursday: "No",
+//           Friday: "No",
+//           Saturday: "No",
+//           Sunday: "No",
+//         };
+
+//         if (rows.length > 0) {
+//           const dates = rows.map(r => new Date(r.activity_date));
+
+//           // Calculate current & longest streak
+//           let current = 1;
+//           let longest = 1;
+//           for (let i = 1; i < dates.length; i++) {
+//             const diffDays = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+//             if (diffDays === 1) current++;
+//             else if (diffDays > 1) current = 1;
+//             longest = Math.max(longest, current);
+//           }
+
+//           const lastActivity = dates[dates.length - 1];
+//           const today = new Date();
+//           const diffFromToday = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
+//           if (diffFromToday > 1) current = 0;
+
+//           current_streak = current;
+//           longest_streak = longest;
+
+//           // Weekly activity
+//           const todayIndex = new Date().getDay();
+//           const diffToMonday = todayIndex === 0 ? 6 : todayIndex - 1;
+//           const monday = new Date();
+//           monday.setDate(monday.getDate() - diffToMonday);
+//           monday.setHours(0, 0, 0, 0);
+
+//           dates.filter(d => d >= monday && d <= new Date()).forEach(d => {
+//             const day = d.toLocaleString("en-US", { weekday: "long" });
+//             week_streak_activity[day] = "Yes";
+//           });
+//         }
+
+//         return { current_streak, longest_streak, week_streak_activity };
+//       })(),
+
+//       // --- 2️⃣ Progress calculation ---
+//       (async () => {
+//         const { rows: paths } = await pool.query(
+//           `SELECT lp.*, ulp.current_course_id
+//            FROM user_learning_paths ulp
+//            JOIN learning_paths lp ON ulp.learning_path_id = lp.id
+//            WHERE ulp.user_id = $1`,
+//           [userId]
+//         );
+
+//         if (paths.length === 0) return [];
+
+//         const pathIds = paths.map(p => p.id);
+
+//         const { rows: courses } = await pool.query(
+//           `SELECT c.*, uc.status, uc.current_module_id, lpc.learning_path_id
+//            FROM learning_path_courses lpc
+//            JOIN courses c ON lpc.course_id = c.id
+//            LEFT JOIN user_courses uc ON uc.course_id = c.id AND uc.user_id = $1
+//            WHERE lpc.learning_path_id = ANY($2::text[])`,
+//           [userId, pathIds]
+//         );
+
+//         const courseIds = courses.map(c => c.id);
+
+//         const { rows: modules } = await pool.query(
+//           `SELECT m.*, um.status, um.current_lesson_id, cm.course_id
+//            FROM course_modules cm
+//            JOIN modules m ON cm.module_id = m.id
+//            LEFT JOIN user_modules um ON um.module_id = m.id AND um.user_id = $1
+//            WHERE cm.course_id = ANY($2::text[])`,
+//           [userId, courseIds]
+//         );
+
+//         const moduleIds = modules.map(m => m.id);
+
+//         const { rows: lessons } = await pool.query(
+//           `SELECT ml.module_id, l.id AS lesson_id, l.title, l.content,
+//                   CASE WHEN um_lesson.user_id IS NOT NULL THEN 'completed' ELSE 'locked' END AS status
+//            FROM module_lessons ml
+//            JOIN lessons l ON ml.lesson_id = l.id
+//            LEFT JOIN user_modules um_lesson
+//              ON um_lesson.module_id = ml.module_id
+//              AND um_lesson.current_lesson_id >= l.id
+//              AND um_lesson.user_id = $1
+//            WHERE ml.module_id = ANY($2::text[])
+//            ORDER BY ml.position ASC`,
+//           [userId, moduleIds]
+//         );
+
+//         const lessonsByModule = {};
+//         lessons.forEach(l => {
+//           if (!lessonsByModule[l.module_id]) lessonsByModule[l.module_id] = [];
+//           lessonsByModule[l.module_id].push({
+//             id: l.lesson_id,
+//             title: l.title,
+//             content: l.content,
+//             status: l.status
+//           });
+//         });
+
+//         const modulesWithProgress = modules.map(m => {
+//           const moduleLessons = lessonsByModule[m.id] || [];
+//           const completedLessons = moduleLessons.filter(l => l.status === "completed").length;
+//           const progress = moduleLessons.length > 0
+//             ? Math.round((completedLessons / moduleLessons.length) * 100)
+//             : 0;
+
+//           return {
+//             id: m.id,
+//             title: m.title,
+//             status: m.status || "locked",
+//             current_lesson_id: m.current_lesson_id,
+//             lessons: moduleLessons,
+//             progress,
+//             course_id: m.course_id
+//           };
+//         });
+
+//         return paths.map(lp => {
+//           const lpCourses = courses.filter(c => c.learning_path_id === lp.id).map(c => {
+//             const courseModules = modulesWithProgress.filter(m => m.course_id === c.id);
+//             const courseProgress = courseModules.length
+//               ? Math.round(courseModules.reduce((sum, m) => sum + m.progress, 0) / courseModules.length)
+//               : 0;
+
+//             return {
+//               id: c.id,
+//               title: c.title,
+//               status: c.status || "locked",
+//               current_module_id: c.current_module_id,
+//               progress: courseProgress,
+//               modules: courseModules
+//             };
+//           });
+
+//           return {
+//             id: lp.id,
+//             title: lp.title,
+//             current_course_id: lp.current_course_id,
+//             courses: lpCourses
+//           };
+//         });
+//       })()
+//     ]);
+
+//     // --- Send combined response ---
+//     res.json({
+//       ok: true,
+//       streak: streakResult,
+//       progress: pathsResult
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ ok: false, message: "Failed to fetch dashboard data" });
+//   }
+// };
+
+// export const getUserLearnProgress = async (req, res) => {
+//   const userId = req.user.id;
+
+//   try {
+//     // Run streak + progress in parallel
+//     const [streakResult, pathsResult] = await Promise.all([
+//       // --- 🧩 1️⃣ STREAK CALCULATION ---
+//       (async () => {
+//         const { rows } = await pool.query(
+//           `SELECT activity_date
+//            FROM user_activity_log
+//            WHERE user_id = $1
+//            ORDER BY activity_date ASC`,
+//           [userId]
+//         );
+
+//         let current_streak = 0;
+//         let longest_streak = 0;
+//         const week_streak_activity = {
+//           Monday: "No",
+//           Tuesday: "No",
+//           Wednesday: "No",
+//           Thursday: "No",
+//           Friday: "No",
+//           Saturday: "No",
+//           Sunday: "No",
+//         };
+
+//         if (rows.length > 0) {
+//           const dates = rows.map((r) => new Date(r.activity_date));
+//           let current = 1;
+//           let longest = 1;
+
+//           for (let i = 1; i < dates.length; i++) {
+//             const diffDays = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+//             if (diffDays === 1) current++;
+//             else if (diffDays > 1) current = 1;
+//             longest = Math.max(longest, current);
+//           }
+
+//           const lastActivity = dates[dates.length - 1];
+//           const today = new Date();
+//           const diffFromToday = Math.floor(
+//             (today - lastActivity) / (1000 * 60 * 60 * 24)
+//           );
+//           if (diffFromToday > 1) current = 0;
+
+//           current_streak = current;
+//           longest_streak = longest;
+
+//           const todayIndex = new Date().getDay();
+//           const diffToMonday = todayIndex === 0 ? 6 : todayIndex - 1;
+//           const monday = new Date();
+//           monday.setDate(monday.getDate() - diffToMonday);
+//           monday.setHours(0, 0, 0, 0);
+
+//           dates
+//             .filter((d) => d >= monday && d <= new Date())
+//             .forEach((d) => {
+//               const day = d.toLocaleString("en-US", { weekday: "long" });
+//               week_streak_activity[day] = "Yes";
+//             });
+//         }
+
+//         return { current_streak, longest_streak, week_streak_activity };
+//       })(),
+
+//       // --- 🧠 2️⃣ LEARNING PROGRESS CALCULATION ---
+//       (async () => {
+//         const { rows: paths } = await pool.query(
+//           `SELECT lp.*, ulp.current_course_id
+//            FROM user_learning_paths ulp
+//            JOIN learning_paths lp ON ulp.learning_path_id = lp.id
+//            WHERE ulp.user_id = $1`,
+//           [userId]
+//         );
+
+//         if (paths.length === 0) return [];
+
+//         const pathIds = paths.map((p) => p.id);
+
+//         // Fetch all courses in these paths
+//         const { rows: courses } = await pool.query(
+//           `SELECT c.*, uc.status, uc.current_module_id, lpc.learning_path_id
+//            FROM learning_path_courses lpc
+//            JOIN courses c ON lpc.course_id = c.id
+//            LEFT JOIN user_courses uc ON uc.course_id = c.id AND uc.user_id = $1
+//            WHERE lpc.learning_path_id = ANY($2::text[])`,
+//           [userId, pathIds]
+//         );
+
+//         const courseIds = courses.map((c) => c.id);
+
+//         // Fetch all modules in these courses
+//         const { rows: modules } = await pool.query(
+//           `SELECT m.*, um.status, um.current_lesson_id, cm.course_id
+//            FROM course_modules cm
+//            JOIN modules m ON cm.module_id = m.id
+//            LEFT JOIN user_modules um ON um.module_id = m.id AND um.user_id = $1
+//            WHERE cm.course_id = ANY($2::text[])`,
+//           [userId, courseIds]
+//         );
+
+//         const moduleIds = modules.map((m) => m.id);
+
+//         // --- 🧩 FIXED LESSON LOGIC ---
+//         const { rows: lessons } = await pool.query(
+//           `SELECT ml.module_id, l.id AS lesson_id, l.title, l.content, ml.position
+//            FROM module_lessons ml
+//            JOIN lessons l ON ml.lesson_id = l.id
+//            WHERE ml.module_id = ANY($1::text[])
+//            ORDER BY ml.position ASC`,
+//           [moduleIds]
+//         );
+
+//         const { rows: userLessonProgress } = await pool.query(
+//           `SELECT module_id, current_lesson_id
+//            FROM user_modules
+//            WHERE user_id = $1`,
+//           [userId]
+//         );
+
+//         const userLessonMap = {};
+//         userLessonProgress.forEach((u) => {
+//           userLessonMap[u.module_id] = u.current_lesson_id;
+//         });
+
+//         const lessonsByModule = {};
+//         lessons.forEach((l) => {
+//           if (!lessonsByModule[l.module_id]) lessonsByModule[l.module_id] = [];
+//           lessonsByModule[l.module_id].push(l);
+//         });
+
+//         // --- 🧠 Assign lesson statuses properly ---
+//         Object.keys(lessonsByModule).forEach((moduleId) => {
+//           const moduleLessons = lessonsByModule[moduleId];
+//           const currentLessonId = userLessonMap[moduleId];
+//           let hasUnlockedNext = false;
+
+//           moduleLessons.forEach((lesson, index) => {
+//             if (!currentLessonId) {
+//               // User hasn't started → unlock first lesson
+//               lesson.status = index === 0 ? "unlocked" : "locked";
+//             } else if (lesson.lesson_id === currentLessonId) {
+//               lesson.status = "unlocked";
+//               hasUnlockedNext = true;
+//             } else if (hasUnlockedNext) {
+//               lesson.status = "locked";
+//               hasUnlockedNext = false;
+//             } else {
+//               lesson.status = "completed";
+//             }
+//           });
+//         });
+
+//         // --- 🧩 MODULE PROGRESS ---
+//         const modulesWithProgress = modules.map((m) => {
+//           const moduleLessons = lessonsByModule[m.id] || [];
+//           const completedLessons = moduleLessons.filter(
+//             (l) => l.status === "completed"
+//           ).length;
+//           const progress =
+//             moduleLessons.length > 0
+//               ? Math.round((completedLessons / moduleLessons.length) * 100)
+//               : 0;
+
+//           return {
+//             id: m.id,
+//             title: m.title,
+//             status: m.status || "locked",
+//             current_lesson_id: m.current_lesson_id,
+//             lessons: moduleLessons,
+//             progress,
+//             course_id: m.course_id,
+//           };
+//         });
+
+//         // --- 🧩 COURSE + PATH PROGRESS ---
+//         const pathData = paths.map((lp) => {
+//           const lpCourses = courses
+//             .filter((c) => c.learning_path_id === lp.id)
+//             .map((c) => {
+//               const courseModules = modulesWithProgress.filter(
+//                 (m) => m.course_id === c.id
+//               );
+//               const courseProgress = courseModules.length
+//                 ? Math.round(
+//                     courseModules.reduce((sum, m) => sum + m.progress, 0) /
+//                       courseModules.length
+//                   )
+//                 : 0;
+
+//               return {
+//                 id: c.id,
+//                 title: c.title,
+//                 status: c.status || "locked",
+//                 current_module_id: c.current_module_id,
+//                 progress: courseProgress,
+//                 modules: courseModules,
+//               };
+//             });
+
+//           const pathProgress = lpCourses.length
+//             ? Math.round(
+//                 lpCourses.reduce((sum, c) => sum + c.progress, 0) /
+//                   lpCourses.length
+//               )
+//             : 0;
+
+//           return {
+//             id: lp.id,
+//             title: lp.title,
+//             current_course_id: lp.current_course_id,
+//             progress: pathProgress,
+//             courses: lpCourses,
+//           };
+//         });
+
+//         return pathData;
+//       })(),
+//     ]);
+
+//     // --- ✅ Final Response ---
+//     res.json({
+//       ok: true,
+//       streak: streakResult,
+//       progress: pathsResult,
+//     });
+//   } catch (err) {
+//     console.error("Error in getUserLearnProgress:", err);
+//     res.status(500).json({
+//       ok: false,
+//       message: "Failed to fetch learn progress data",
+//     });
+//   }
+// };
+
+
 export const getUserLearnProgress = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    // --- Run streak and progress queries in parallel ---
-    const [streakResult, pathsResult] = await Promise.all([
-      // --- 1️⃣ Streak calculation ---
-      (async () => {
-        const { rows } = await pool.query(
-          `SELECT activity_date
-           FROM user_activity_log
-           WHERE user_id = $1
-           ORDER BY activity_date ASC`,
-          [userId]
-        );
+    // --- 1️⃣ Calculate streaks ---
+    const { rows: activityRows } = await pool.query(
+      `SELECT activity_date
+       FROM user_activity_log
+       WHERE user_id = $1
+       ORDER BY activity_date ASC`,
+      [userId]
+    );
 
-        let current_streak = 0;
-        let longest_streak = 0;
-        const week_streak_activity = {
-          Monday: "No",
-          Tuesday: "No",
-          Wednesday: "No",
-          Thursday: "No",
-          Friday: "No",
-          Saturday: "No",
-          Sunday: "No",
-        };
+    let current_streak = 0;
+    let longest_streak = 0;
+    const week_streak_activity = {
+      Monday: "No",
+      Tuesday: "No",
+      Wednesday: "No",
+      Thursday: "No",
+      Friday: "No",
+      Saturday: "No",
+      Sunday: "No",
+    };
 
-        if (rows.length > 0) {
-          const dates = rows.map(r => new Date(r.activity_date));
+    if (activityRows.length > 0) {
+      const dates = activityRows.map(r => new Date(r.activity_date));
+      let current = 1;
+      let longest = 1;
 
-          // Calculate current & longest streak
-          let current = 1;
-          let longest = 1;
-          for (let i = 1; i < dates.length; i++) {
-            const diffDays = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
-            if (diffDays === 1) current++;
-            else if (diffDays > 1) current = 1;
-            longest = Math.max(longest, current);
-          }
+      for (let i = 1; i < dates.length; i++) {
+        const diffDays = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+        if (diffDays === 1) current++;
+        else if (diffDays > 1) current = 1;
+        longest = Math.max(longest, current);
+      }
 
-          const lastActivity = dates[dates.length - 1];
-          const today = new Date();
-          const diffFromToday = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
-          if (diffFromToday > 1) current = 0;
+      const lastActivity = dates[dates.length - 1];
+      const today = new Date();
+      const diffFromToday = Math.floor(
+        (today - lastActivity) / (1000 * 60 * 60 * 24)
+      );
+      if (diffFromToday > 1) current = 0;
 
-          current_streak = current;
-          longest_streak = longest;
+      current_streak = current;
+      longest_streak = longest;
 
-          // Weekly activity
-          const todayIndex = new Date().getDay();
-          const diffToMonday = todayIndex === 0 ? 6 : todayIndex - 1;
-          const monday = new Date();
-          monday.setDate(monday.getDate() - diffToMonday);
-          monday.setHours(0, 0, 0, 0);
+      // Week streak
+      const todayIndex = new Date().getDay();
+      const diffToMonday = todayIndex === 0 ? 6 : todayIndex - 1;
+      const monday = new Date();
+      monday.setDate(monday.getDate() - diffToMonday);
+      monday.setHours(0, 0, 0, 0);
 
-          dates.filter(d => d >= monday && d <= new Date()).forEach(d => {
-            const day = d.toLocaleString("en-US", { weekday: "long" });
-            week_streak_activity[day] = "Yes";
-          });
-        }
-
-        return { current_streak, longest_streak, week_streak_activity };
-      })(),
-
-      // --- 2️⃣ Progress calculation ---
-      (async () => {
-        const { rows: paths } = await pool.query(
-          `SELECT lp.*, ulp.current_course_id
-           FROM user_learning_paths ulp
-           JOIN learning_paths lp ON ulp.learning_path_id = lp.id
-           WHERE ulp.user_id = $1`,
-          [userId]
-        );
-
-        if (paths.length === 0) return [];
-
-        const pathIds = paths.map(p => p.id);
-
-        const { rows: courses } = await pool.query(
-          `SELECT c.*, uc.status, uc.current_module_id, lpc.learning_path_id
-           FROM learning_path_courses lpc
-           JOIN courses c ON lpc.course_id = c.id
-           LEFT JOIN user_courses uc ON uc.course_id = c.id AND uc.user_id = $1
-           WHERE lpc.learning_path_id = ANY($2::text[])`,
-          [userId, pathIds]
-        );
-
-        const courseIds = courses.map(c => c.id);
-
-        const { rows: modules } = await pool.query(
-          `SELECT m.*, um.status, um.current_lesson_id, cm.course_id
-           FROM course_modules cm
-           JOIN modules m ON cm.module_id = m.id
-           LEFT JOIN user_modules um ON um.module_id = m.id AND um.user_id = $1
-           WHERE cm.course_id = ANY($2::text[])`,
-          [userId, courseIds]
-        );
-
-        const moduleIds = modules.map(m => m.id);
-
-        const { rows: lessons } = await pool.query(
-          `SELECT ml.module_id, l.id AS lesson_id, l.title, l.content,
-                  CASE WHEN um_lesson.user_id IS NOT NULL THEN 'completed' ELSE 'locked' END AS status
-           FROM module_lessons ml
-           JOIN lessons l ON ml.lesson_id = l.id
-           LEFT JOIN user_modules um_lesson
-             ON um_lesson.module_id = ml.module_id
-             AND um_lesson.current_lesson_id >= l.id
-             AND um_lesson.user_id = $1
-           WHERE ml.module_id = ANY($2::text[])
-           ORDER BY ml.position ASC`,
-          [userId, moduleIds]
-        );
-
-        const lessonsByModule = {};
-        lessons.forEach(l => {
-          if (!lessonsByModule[l.module_id]) lessonsByModule[l.module_id] = [];
-          lessonsByModule[l.module_id].push({
-            id: l.lesson_id,
-            title: l.title,
-            content: l.content,
-            status: l.status
-          });
+      dates
+        .filter(d => d >= monday && d <= new Date())
+        .forEach(d => {
+          const day = d.toLocaleString("en-US", { weekday: "long" });
+          week_streak_activity[day] = "Yes";
         });
+    }
 
-        const modulesWithProgress = modules.map(m => {
-          const moduleLessons = lessonsByModule[m.id] || [];
-          const completedLessons = moduleLessons.filter(l => l.status === "completed").length;
-          const progress = moduleLessons.length > 0
-            ? Math.round((completedLessons / moduleLessons.length) * 100)
-            : 0;
+    // --- 2️⃣ Get current path + course ---
+    const { rows: paths } = await pool.query(
+      `SELECT ulp.*, lp.title AS path_title
+       FROM user_learning_paths ulp
+       JOIN learning_paths lp ON ulp.learning_path_id = lp.id
+       WHERE ulp.user_id = $1`,
+      [userId]
+    );
 
-          return {
-            id: m.id,
-            title: m.title,
-            status: m.status || "locked",
-            current_lesson_id: m.current_lesson_id,
-            lessons: moduleLessons,
-            progress,
-            course_id: m.course_id
-          };
-        });
+    if (paths.length === 0) {
+      return res.json({
+        ok: true,
+        streak: { current_streak, longest_streak, week_streak_activity },
+        current_path: null,
+        current_course: null,
+      });
+    }
 
-        return paths.map(lp => {
-          const lpCourses = courses.filter(c => c.learning_path_id === lp.id).map(c => {
-            const courseModules = modulesWithProgress.filter(m => m.course_id === c.id);
-            const courseProgress = courseModules.length
-              ? Math.round(courseModules.reduce((sum, m) => sum + m.progress, 0) / courseModules.length)
-              : 0;
+    // Assuming user has only 1 current learning path
+    const currentPath = paths.find(p => p.current_course_id) || paths[0];
 
-            return {
-              id: c.id,
-              title: c.title,
-              status: c.status || "locked",
-              current_module_id: c.current_module_id,
-              progress: courseProgress,
-              modules: courseModules
-            };
-          });
+    // Get all courses in this path
+    const { rows: courses } = await pool.query(
+      `SELECT c.*, uc.status, uc.current_module_id
+       FROM learning_path_courses lpc
+       JOIN courses c ON lpc.course_id = c.id
+       LEFT JOIN user_courses uc
+         ON uc.course_id = c.id AND uc.user_id = $1
+       WHERE lpc.learning_path_id = $2`,
+      [userId, currentPath.learning_path_id]
+    );
 
-          return {
-            id: lp.id,
-            title: lp.title,
-            current_course_id: lp.current_course_id,
-            courses: lpCourses
-          };
-        });
-      })()
-    ]);
+    if (!courses.length) {
+      return res.json({
+        ok: true,
+        streak: { current_streak, longest_streak, week_streak_activity },
+        current_path: { id: currentPath.learning_path_id, title: currentPath.path_title, progress: 0 },
+        current_course: null,
+      });
+    }
 
-    // --- Send combined response ---
-    res.json({
-      ok: true,
-      streak: streakResult,
-      progress: pathsResult
+    // Current course
+    const currentCourse = courses.find(c => c.id === currentPath.current_course_id) || courses[0];
+
+    // Get all modules & lessons for this course to calculate progress
+    const { rows: modules } = await pool.query(
+      `SELECT m.id, um.current_lesson_id, um.status
+       FROM course_modules cm
+       JOIN modules m ON cm.module_id = m.id
+       LEFT JOIN user_modules um
+         ON um.module_id = m.id AND um.user_id = $1
+       WHERE cm.course_id = $2`,
+      [userId, currentCourse.id]
+    );
+
+    const moduleIds = modules.map(m => m.id);
+    const { rows: lessons } = await pool.query(
+      `SELECT l.id, l.title, ml.module_id, ul.status
+       FROM module_lessons ml
+       JOIN lessons l ON ml.lesson_id = l.id
+       LEFT JOIN user_lessons ul
+         ON ul.lesson_id = l.id AND ul.user_id = $1
+       WHERE ml.module_id = ANY($2::text[])`,
+      [userId, moduleIds]
+    );
+
+    // Calculate course progress
+    let totalLessons = 0;
+    let completedLessons = 0;
+    let currentLesson = null;
+
+    const lessonsByModule = {};
+    lessons.forEach(l => {
+      if (!lessonsByModule[l.module_id]) lessonsByModule[l.module_id] = [];
+      lessonsByModule[l.module_id].push(l);
+
+      totalLessons++;
+      if (l.status === "completed") completedLessons++;
+
+      // Determine current lesson
+      if (!currentLesson && l.status !== "completed") {
+        currentLesson = { id: l.id, title: l.title };
+      }
     });
 
+    const courseProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+    // Path progress = average of all courses
+    const pathProgress = courses.length
+      ? Math.round(
+          courses.reduce((sum, c) => {
+            // Simple estimate: use user_modules + user_lessons
+            const modRows = lessons.filter(l => moduleIds.includes(l.module_id));
+            const total = modRows.length;
+            const completed = modRows.filter(l => l.status === "completed").length;
+            return sum + (total > 0 ? (completed / total) * 100 : 0);
+          }, 0) / courses.length
+        )
+      : 0;
+
+    // --- ✅ Return final simplified response ---
+    res.json({
+      ok: true,
+      streak: { current_streak, longest_streak, week_streak_activity },
+      current_path: {
+        id: currentPath.learning_path_id,
+        title: currentPath.path_title,
+        progress: pathProgress,
+      },
+      current_course: {
+        id: currentCourse.id,
+        title: currentCourse.title,
+        progress: courseProgress,
+        current_module_id: currentCourse.current_module_id,
+        current_lesson: currentLesson,
+      },
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, message: "Failed to fetch dashboard data" });
+    console.error("Error in getUserLearnProgress:", err);
+    res.status(500).json({
+      ok: false,
+      message: "Failed to fetch learn progress data",
+    });
   }
 };

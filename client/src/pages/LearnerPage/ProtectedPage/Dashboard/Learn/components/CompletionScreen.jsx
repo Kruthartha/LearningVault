@@ -8,10 +8,13 @@ import {
 import Confetti from "react-confetti";
 import { NavArrowRight, Xmark, Timer, Star } from "iconoir-react";
 import { useNavigate } from "react-router-dom";
+import api from "../../../../../../services/api";
+// --- 1. IMPORT YOUR AXIOS WRAPPER ---
 
 // --- Reusable Animated Components ---
 
-const API_URL = import.meta.env.VITE_API_URL;
+// --- 2. API_URL CONSTANT REMOVED ---
+// The baseURL is now set in your api.js wrapper
 
 const AnimatedStat = ({ value, isTime = false }) => {
   const spring = useSpring(0, { mass: 0.8, stiffness: 100, damping: 15 });
@@ -108,52 +111,47 @@ const CompletionScreen = ({
   React.useEffect(() => {
     // API Call to save progress
     const saveProgress = async () => {
-      // --- START: MODIFIED API CALL ---
+      // --- START: REFACTORED API CALL ---
       console.log(`Saving progress for lesson "${lesson.title}"...`);
 
       try {
-        // 1. Get your JWT token.
-        //    (e.g., from localStorage, Auth Context, etc.)
-        //    !! REPLACE "jwtToken" with your actual storage key !!
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          setError("You are not logged in.");
-          setIsLoading(false);
-          return;
-        }
+        // 1. Construct the relative API URL (no VITE_API_URL needed)
+        const apiUrl = `/user/progress/${pathSlug}/${courseSlug}/${lesson.id}/complete`;
 
-        // 2. Construct the dynamic API URL from props
-        const apiUrl = `${API_URL}/user/progress/${pathSlug}/${courseSlug}/${lesson.id}/complete`;
-
-        // 3. Make the POST request
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // 4. Include the JWT
-            Authorization: `Bearer ${token}`,
-          },
-          // 5. Send the timeSpent in the body
-          body: JSON.stringify({ timeSpent: Math.floor(timeSpent) }),
+        // 2. Make the POST request using the 'api' wrapper.
+        //    - 'Authorization' header is added automatically.
+        //    - 'Content-Type' is handled automatically.
+        //    - JSON.stringify is done automatically.
+        const response = await api.post(apiUrl, {
+          timeSpent: Math.floor(timeSpent),
         });
 
-        if (!response.ok) {
-          // Handle API errors (e.g., 401, 404, 500)
-          const errorData = await response.json();
+        // 3. Success! Axios puts the response body in `response.data`.
+        const result = response.data;
+        console.log("Progress saved successfully:", result);
+      } catch (error) {
+        // 4. Handle errors from Axios (non-2xx responses, network errors)
+        if (error.response) {
+          // The server responded with an error (e.g., 401, 404, 500)
           console.error(
-            `Failed to save progress: ${response.status}`,
-            errorData.message || "Unknown server error"
+            `Failed to save progress: ${error.response.status}`,
+            error.response.data?.message || "Unknown server error"
+          );
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error(
+            "No response from server. Network error:",
+            error.request
           );
         } else {
-          // Success!
-          const result = await response.json();
-          console.log("Progress saved successfully:", result);
+          // Something else happened
+          console.error(
+            "An error occurred while saving progress:",
+            error.message
+          );
         }
-      } catch (error) {
-        // Handle network errors or other exceptions
-        console.error("An error occurred while saving progress:", error);
       }
-      // --- END: MODIFIED API CALL ---
+      // --- END: REFACTORED API CALL ---
     };
 
     saveProgress();
@@ -174,9 +172,14 @@ const CompletionScreen = ({
 
   return (
     <div className="font-sans flex min-h-screen w-full items-center justify-center overflow-hidden p-4 bg-gray-100 dark:bg-black">
-      {/* ... Confetti and other UI ... */}
-      {/* This example omits the Confetti component for brevity, 
-          but it was present in your original code and can remain. */}
+      <Confetti
+        width={windowSize.width}
+        height={windowSize.height}
+        numberOfPieces={isCourseComplete ? 500 : 250}
+        recycle={false}
+        gravity={0.08}
+        colors={confettiColors}
+      />
 
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,122,255,0.15),transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(0,122,255,0.1),transparent_50%)]"></div>
 

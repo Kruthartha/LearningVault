@@ -22,8 +22,6 @@ import { LayoutContext } from "../Context/LayoutContext";
 // Import the generic skeleton
 import GenericPageSkeleton from "./GenericPageSkeleton";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 const getInitials = (first, last) => {
   if (!first) return "?";
   return (first[0] + (last ? last[0] : "")).toUpperCase();

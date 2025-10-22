@@ -172,61 +172,50 @@ export default function LearnPage() {
     },
   ];
 
+  // [--- UPDATED DATA FETCHING ---]
   useEffect(() => {
     const fetchAllData = async () => {
       setIsLoading(true);
       try {
+        // 1. Get data from API
         const allData = await api.get("/user/learn");
 
-        const progressData = allData.data.progress;
+        // 2. Extract data from the new structure
         const streakResult = allData.data.streak;
+        const pathData = allData.data.current_path;
+        const courseData = allData.data.current_course;
 
+        // 3. Set streak data
         setStreakData(streakResult);
 
-        const pathData = progressData[0];
-        if (!pathData || !pathData.courses || pathData.courses.length === 0) {
+        // 4. Handle case where user has no active path/course
+        if (!pathData || !courseData) {
           setInProgress([]);
           setCurrentCourse(null);
-          return;
+          return; // Will hit `finally` block
         }
 
+        // 5. Set the path slug for navigation
         setPathSlug(pathData.id);
 
-        const pathProgress =
-          pathData.courses.reduce((sum, course) => sum + course.progress, 0) /
-          pathData.courses.length;
-        const firstUnfinishedCourseForPath =
-          pathData.courses.find((c) => c.progress < 100) || pathData.courses[0];
+        // 6. Build the Path Object
         const pathActionText =
-          pathProgress > 0 ? "Continue with" : "Start with";
-
+          pathData.progress > 0 ? "Continue with" : "Start with";
         const pathObject = {
           type: "path",
           id: pathData.id,
           title: pathData.title,
           slug: pathData.id,
-          nextUp: `${pathActionText} ${
-            firstUnfinishedCourseForPath?.title || "the first course"
-          }`,
-          progress: Math.round(pathProgress),
+          // Use the current course title as the "next up" for the path
+          nextUp: `${pathActionText} ${courseData.title}`,
+          progress: Math.round(pathData.progress),
           icon: Layers,
         };
 
-        const courseData =
-          pathData.courses.find(
-            (c) => c.status === "unlocked" && c.progress < 100
-          ) || pathData.courses[0];
-
-        if (!courseData) {
-          setCurrentCourse(null);
-          setInProgress([pathObject]);
-          return;
-        }
-
-        const firstModule = courseData.modules?.[0];
-        const firstLesson = firstModule?.lessons?.[0];
+        // 7. Build the Course Object
+        // Use the specific lesson title from the API response
         const courseNextUp =
-          firstLesson?.title || firstModule?.title || "Review course materials";
+          courseData.current_lesson?.title || "Start the first lesson";
         const courseObject = {
           type: "course",
           id: courseData.id,
@@ -236,6 +225,8 @@ export default function LearnPage() {
           progress: Math.round(courseData.progress),
         };
 
+        // 8. Set the state
+        // Course first, so it's the default active tab
         setInProgress([courseObject, pathObject]);
         setCurrentCourse(courseObject);
       } catch (e) {
@@ -249,6 +240,7 @@ export default function LearnPage() {
 
     fetchAllData();
   }, [navigate]);
+  // [--- END UPDATED DATA FETCHING ---]
 
   // <-- 2. THIS LINE now works by using the imported component
   if (isLoading) return <LearnPageSkeleton />;
