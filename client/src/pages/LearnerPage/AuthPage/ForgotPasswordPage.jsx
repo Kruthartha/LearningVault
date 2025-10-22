@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom"; // Use Link for navigation
 
-const API_URL = import.meta.env.VITE_API_URL;
+import api from "../../../services/api";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -14,29 +14,32 @@ const ForgotPasswordPage = () => {
     setIsLoading(true);
     setMessage(""); // Clear previous messages
 
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+      setMessage("Please enter a valid email.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch(`${API_URL}/auth/forgot-password`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
+      const { data } = await api.post("/auth/forgot-password", {
+        email: trimmedEmail,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        // Even if the server sends a generic success message on failure,
-        // this handles actual network or server errors.
-        throw new Error(data.message || "An error occurred.");
-      }
-      
-      // Display the success message from the API response
-      setMessage(data.message);
-
+      // Display the success message from API response
+      setMessage(data.message || "Reset link sent successfully.");
     } catch (err) {
-      // In case of an unexpected error, show a generic message.
-      setMessage(err.message || "Failed to send reset link. Please try again.");
+      // Axios errors have `response` property
+      if (err.response) {
+        // Server responded with a status outside 2xx
+        setMessage(err.response.data?.message || "Failed to send reset link.");
+      } else if (err.request) {
+        // Request was made but no response
+        setMessage("Network error. Please check your connection.");
+      } else {
+        // Something else happened
+        setMessage(err.message || "An unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }

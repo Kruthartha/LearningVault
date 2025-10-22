@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; // ✅ import navigate
-
-// const API_URL = process.env.REACT_APP_API_URL;
-const API_URL = import.meta.env.VITE_API_URL;
+import { Link, useNavigate } from "react-router-dom"; 
+import api from "../../../services/api";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -34,34 +32,27 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // needed for refresh token
-        body: JSON.stringify(formData),
+      // Make login request using centralized Axios
+      const { data } = await api.post("/auth/login", formData, {
+        withCredentials: true, // important for refresh token cookies
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      // Save accessToken
+      // Save accessToken and user info
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       console.log("User:", data.user);
 
       // ✅ Redirect to dashboard
-      console.log("Redirecting to dashboard...");
-
       navigate("/dashboard");
-      console.log("Redirecting to dashboard...");
     } catch (err) {
-      alert(err.message);
+      if (err.response) {
+        alert(err.response.data?.message || "Login failed");
+      } else if (err.request) {
+        alert("Network error. Please check your connection and try again.");
+      } else {
+        alert(err.message || "An unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }

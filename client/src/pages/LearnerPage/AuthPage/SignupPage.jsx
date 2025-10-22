@@ -1,8 +1,7 @@
 import { useState } from "react";
+import api from "../../../services/api";
 
 const SignUpPage = () => {
-
-const API_URL = import.meta.env.VITE_API_URL;
 
   const [currentStep, setCurrentStep] = useState("signup"); // "signup", "otp", or "success"
   const [formData, setFormData] = useState({
@@ -61,119 +60,99 @@ const API_URL = import.meta.env.VITE_API_URL;
     }, 1000);
   };
 
-  const handleSignUpSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.agreeToTerms) {
-      alert("Please agree to the Terms of Service to continue.");
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match. Please try again.");
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      
-      const response = await fetch(`${API_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          confirmPassword: formData.confirmPassword,
-          termsAccepted: formData.agreeToTerms,
-          subscribeUpdates: formData.subscribeNewsletter
-        })
-      });
+const handleSignUpSubmit = async (e) => {
+  e.preventDefault();
 
-      const result = await response.json();
-      
-      if (response.ok) {
-        // Move to OTP step
-        setCurrentStep("otp");
-        startResendTimer();
-      } else {
-        alert(result.message || "Signup failed. Please try again.");
-      }
-    } catch (error) {
+  if (!formData.agreeToTerms) {
+    alert("Please agree to the Terms of Service to continue.");
+    return;
+  }
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords don't match. Please try again.");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const { data } = await api.post("/auth/signup", {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+      termsAccepted: formData.agreeToTerms,
+      subscribeUpdates: formData.subscribeNewsletter,
+    });
+
+    // Move to OTP step
+    setCurrentStep("otp");
+    startResendTimer();
+  } catch (err) {
+    if (err.response) {
+      alert(err.response.data?.message || "Signup failed. Please try again.");
+    } else if (err.request) {
       alert("Network error. Please check your connection and try again.");
-    } finally {
-      setIsLoading(false);
+    } else {
+      alert(err.message || "An unexpected error occurred.");
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-    if (otpData.otp.length !== 6) {
-      alert("Please enter a valid 6-digit OTP.");
-      return;
-    }
+const handleOtpSubmit = async (e) => {
+  e.preventDefault();
 
-    setIsLoading(true);
-    
-    try {
-      // Replace with your actual OTP verification endpoint
-      const response = await fetch(`${API_URL}/auth/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          otp: otpData.otp
-        })
-      });
+  if (otpData.otp.length !== 6) {
+    alert("Please enter a valid 6-digit OTP.");
+    return;
+  }
 
-      const result = await response.json();
-      
-      if (response.ok) {
-        // Move to success step
-        setCurrentStep("success");
-      } else {
-        alert(result.message || "Invalid OTP. Please try again.");
-      }
-    } catch (error) {
+  setIsLoading(true);
+
+  try {
+    const { data } = await api.post("/auth/verify-otp", {
+      email: formData.email,
+      otp: otpData.otp,
+    });
+
+    // Move to success step
+    setCurrentStep("success");
+  } catch (err) {
+    if (err.response) {
+      alert(err.response.data?.message || "Invalid OTP. Please try again.");
+    } else if (err.request) {
       alert("Network error. Please check your connection and try again.");
-    } finally {
-      setIsLoading(false);
+    } else {
+      alert(err.message || "An unexpected error occurred.");
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const handleResendOtp = async () => {
-    if (!otpData.canResend) return;
-    
-    setIsLoading(true);
-    
-    try {
-      // Replace with your actual resend OTP endpoint
-      const response = await fetch(`${API_URL}/auth/resend-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email
-        })
-      });
+const handleResendOtp = async () => {
+  if (!otpData.canResend) return;
 
-      if (response.ok) {
-        startResendTimer();
-        alert("OTP resent successfully!");
-      } else {
-        alert("Failed to resend OTP. Please try again.");
-      }
-    } catch (error) {
+  setIsLoading(true);
+
+  try {
+    await api.post("/auth/resend-otp", { email: formData.email });
+    startResendTimer();
+    alert("OTP resent successfully!");
+  } catch (err) {
+    if (err.response) {
+      alert(err.response.data?.message || "Failed to resend OTP. Please try again.");
+    } else if (err.request) {
       alert("Network error. Please try again.");
-    } finally {
-      setIsLoading(false);
+    } else {
+      alert(err.message || "An unexpected error occurred.");
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const getPasswordStrengthColor = () => {
     if (passwordStrength <= 2) return "bg-red-500";
@@ -689,27 +668,16 @@ const API_URL = import.meta.env.VITE_API_URL;
                         type="button"
                         onClick={() => {
                           // Redirect to dashboard
-                          window.location.href = '/dashboard';
+                          window.location.href = '/login';
                         }}
                         className="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 px-6 rounded-xl font-medium transition-all duration-200 transform hover:scale-[1.02]"
                       >
-                        Go to Dashboard
-                      </button>
-                      
-                      <button
-                        type="button"
-                        onClick={() => {
-                          // Redirect to courses
-                          window.location.href = '/courses';
-                        }}
-                        className="w-full bg-blue-100 hover:bg-blue-200 text-blue-700 py-3 px-6 rounded-xl font-medium transition-all duration-200"
-                      >
-                        Browse Courses
+                        Login
                       </button>
                     </div>
 
                     {/* User Info Summary */}
-                    <div className="mt-8 pt-6 border-t border-gray-100">
+                    <div className="mt-2 pt-2 border-t border-gray-100">
                       <div className="text-center text-sm text-gray-600">
                         <p className="mb-1">Account created for:</p>
                         <p className="font-medium text-gray-800">

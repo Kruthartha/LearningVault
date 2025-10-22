@@ -9,6 +9,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+import api from "../../../../../services/api";
 // <-- 1. IMPORT the skeleton from its new file
 import { LearnPageSkeleton } from "./components/LearnPageSkeleton";
 
@@ -117,7 +119,7 @@ const StreakTracker = ({ streakData }) => {
                 }
 ${
   isToday
-    ? "ring-2 ring-orange-500 dark:ring-orange-400 ring-offset-2 dark:ring-offset-[#0e1013] animate-pulse"
+    ? "ring-2 ring-orange-500 dark:ring-orange-400 ring-offset-1 dark:ring-offset-[#0e1013] animate-pulse"
     : ""
 }
               `}
@@ -170,57 +172,22 @@ export default function LearnPage() {
     },
   ];
 
-  // --- [MODIFIED] Data fetching logic ---
   useEffect(() => {
     const fetchAllData = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("You are not logged in.");
-        setIsLoading(false);
-        return;
-      }
+      setIsLoading(true);
       try {
-        // Simulate a 2-second load time as requested
-        // await new Promise(resolve => setTimeout(resolve, 2000));
+        const allData = await api.get("/user/learn");
 
-        // 1. Make a single API call to the new /user/learn endpoint
-        const response = await fetch(`${API_URL}/user/learn`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const progressData = allData.data.progress;
+        const streakResult = allData.data.streak;
 
-        // 2. Check the response of the single call
-        if (!response.ok) {
-          let errorMsg = `HTTP error! status: ${response.status}`;
-          try {
-            // Try to get a more specific error message from the API
-            const errorData = await response.json();
-            errorMsg = errorData.message || errorMsg;
-          } catch (jsonError) {
-            // Body wasn't JSON or was unreadable, stick with the status code
-          }
-          throw new Error(errorMsg);
-        }
-
-        // 3. Get the combined JSON data
-        const allData = await response.json();
-
-        // 4. Extract the progress and streak data from the new structure
-        // These variable names match the old logic, so no other code
-        // needs to change.
-        const progressData = allData.progress;
-        const streakResult = allData.streak;
-
-        // --- Logic from here down is the same as before ---
-
-        // Set streak data first, so it appears even if progress is empty
         setStreakData(streakResult);
 
         const pathData = progressData[0];
         if (!pathData || !pathData.courses || pathData.courses.length === 0) {
           setInProgress([]);
-          // Set to null to trigger the "No learning progress" message
           setCurrentCourse(null);
-          return; // 'finally' block will still run
+          return;
         }
 
         setPathSlug(pathData.id);
@@ -232,6 +199,7 @@ export default function LearnPage() {
           pathData.courses.find((c) => c.progress < 100) || pathData.courses[0];
         const pathActionText =
           pathProgress > 0 ? "Continue with" : "Start with";
+
         const pathObject = {
           type: "path",
           id: pathData.id,
@@ -249,11 +217,10 @@ export default function LearnPage() {
             (c) => c.status === "unlocked" && c.progress < 100
           ) || pathData.courses[0];
 
-        // Handle case where courseData might be undefined
         if (!courseData) {
           setCurrentCourse(null);
-          setInProgress([pathObject]); // Still show the path
-          return; // 'finally' block will still run
+          setInProgress([pathObject]);
+          return;
         }
 
         const firstModule = courseData.modules?.[0];
@@ -272,14 +239,16 @@ export default function LearnPage() {
         setInProgress([courseObject, pathObject]);
         setCurrentCourse(courseObject);
       } catch (e) {
-        setError(e.message);
+        setError(
+          e.response?.data?.message || e.message || "Something went wrong"
+        );
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchAllData();
-  }, [navigate]); // navigate dependency is fine, though not strictly needed for fetch
-  // --- [END MODIFIED] Data fetching logic ---
+  }, [navigate]);
 
   // <-- 2. THIS LINE now works by using the imported component
   if (isLoading) return <LearnPageSkeleton />;
