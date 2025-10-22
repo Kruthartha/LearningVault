@@ -20,15 +20,15 @@ import {
 const API_URL = import.meta.env.VITE_API_URL;
 
 const StatCard = ({ icon, label, value }) => (
-  <div className="flex items-center gap-4 rounded-2xl border bg-white p-4 dark:bg-[#161b22] border-neutral-200/80 dark:border-[#30363d]">
+  <div className="flex items-center gap-4 rounded-2xl border bg-white p-4 dark:bg-[#0e1013] border-neutral-200/80 dark:border-[#30363d]">
     <div className="rounded-lg bg-blue-50 p-3 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
       {icon}
     </div>
     <div>
-      <p className="text-xl font-medium text-neutral-800 dark:text-neutral-200">
+      <p className="text-xl font-medium text-neutral-800 dark:text-white">
         {value}
       </p>
-      <p className="text-xs font-light text-neutral-500 dark:text-neutral-400">
+      <p className="text-xs font-light text-neutral-500 dark:text-slate-400">
         {label}
       </p>
     </div>
@@ -49,7 +49,7 @@ const ProblemListItem = ({ problem }) => {
       case "Hard":
         return "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-500/10";
       default:
-        return "text-neutral-600 bg-neutral-100 dark:text-neutral-400 dark:bg-neutral-500/10";
+        return "text-neutral-600 bg-neutral-100 dark:text-slate-400 dark:bg-neutral-500/10";
     }
   };
 
@@ -79,21 +79,21 @@ const ProblemListItem = ({ problem }) => {
   return (
     <div
       onClick={handleProblemClick}
-      className="cursor-pointer rounded-2xl border bg-white p-5 transition-all hover:border-neutral-300 hover:shadow-sm dark:bg-[#161b22] border-neutral-200/80 dark:border-[#30363d] dark:hover:border-gray-700"
+      className="cursor-pointer rounded-2xl border bg-white p-5 transition-all hover:border-neutral-300 hover:shadow-sm dark:bg-[#0e1013] border-neutral-200/80 dark:border-[#30363d] dark:hover:border-gray-700"
     >
       <div className="flex items-start gap-4">
         <StatusIcon status={problem.status} />
         <div className="flex-grow">
           <div className="mb-2 flex items-center gap-2">
             {/* API title doesn't include number, so we add it from the ID */}
-            <p className="font-medium text-neutral-800 dark:text-neutral-200">
+            <p className="font-medium text-neutral-800 dark:text-white">
               {problem.id}. {problem.title}
             </p>
             {problem.premium && (
               <Star size={14} className="fill-current text-yellow-500" />
             )}
           </div>
-          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-slate-400">
             <span
               className={`rounded px-2 py-0.5 font-medium ${getDifficultyClass(
                 problem.difficulty
@@ -109,14 +109,14 @@ const ProblemListItem = ({ problem }) => {
             <span>
               Acceptance:{" "}
               {/* API sends acceptance as a string, e.g., "49.20" */}
-              <span className="font-medium text-neutral-600 dark:text-neutral-300">
+              <span className="font-medium text-neutral-600 dark:text-slate-300">
                 {problem.acceptance}%
               </span>
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <div className="flex items-center gap-2">
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-xs text-neutral-500 dark:text-slate-400">
                 Frequency:
               </p>
               <div className="h-1.5 w-24 rounded-full bg-neutral-200 dark:bg-gray-700">
@@ -125,19 +125,19 @@ const ProblemListItem = ({ problem }) => {
                   style={{ width: `${problem.frequency}%` }}
                 ></div>
               </div>
-              <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+              <span className="text-xs font-medium text-neutral-600 dark:text-slate-300">
                 {problem.frequency}%
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-xs text-neutral-500 dark:text-slate-400">
                 Companies:
               </p>
               <div className="flex items-center gap-1">
                 {problem.companies.slice(0, 2).map((c) => (
                   <span
                     key={c}
-                    className="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-gray-800 dark:text-neutral-400"
+                    className="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-gray-800 dark:text-slate-400"
                   >
                     {c}
                   </span>
@@ -271,15 +271,15 @@ const Practice = () => {
             <div className="flex items-center gap-4 rounded-xl border p-4 border-neutral-200/80 dark:border-[#30363d]">
               <Filter
                 size={16}
-                className="text-neutral-500 dark:text-neutral-400"
+                className="text-neutral-500 dark:text-slate-400"
               />
               <span className="text-sm font-light text-neutral-600 dark:text-neutral-300">
                 Filters:
               </span>
-              <button className="rounded-full border bg-white px-3 py-1 text-sm font-normal transition hover:border-neutral-400 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-500">
+              <button className="rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-normal transition hover:border-slate-400 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-500">
                 Difficulty
               </button>
-              <button className="rounded-full border bg-white px-3 py-1 text-sm font-normal transition hover:border-neutral-400 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-500">
+              <button className="rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-normal transition hover:border-slate-400 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-500">
                 Tags
               </button>
             </div>
@@ -316,7 +316,7 @@ const Practice = () => {
           <h1 className="text-4xl font-light tracking-tight text-neutral-900 dark:text-neutral-100 md:text-5xl">
             Problem Solving
           </h1>
-          <p className="mt-2 text-lg font-light text-neutral-500 dark:text-neutral-400">
+          <p className="mt-2 text-lg font-light text-neutral-500 dark:text-slate-400">
             Challenge yourself, solve problems, and prepare for interviews.
           </p>
         </header>
@@ -361,7 +361,7 @@ const Practice = () => {
                   className={`flex items-center gap-2 px-4 py-3 text-sm transition-colors ${
                     selectedTab === tab.id
                       ? "border-b-2 font-medium border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-                      : "font-light text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
+                      : "font-light text-neutral-500 hover:text-neutral-800 dark:text-slate-400 dark:hover:text-neutral-200"
                   }`}
                 >
                   <tab.icon size={16} />
@@ -386,29 +386,29 @@ const Practice = () => {
                 Solve Now <ArrowRight size={16} />
               </button>
             </div>
-            <div className="rounded-2xl border bg-white p-6 dark:bg-[#161b22] border-neutral-200/80 dark:border-[#30363d]">
-              <h3 className="mb-4 font-normal text-neutral-800 dark:text-neutral-200">
+            {/* <div className="rounded-2xl border bg-white p-6 dark:bg-[#0e1013] border-neutral-200/80 dark:border-[#30363d]">
+              <h3 className="mb-4 font-normal text-neutral-800 dark:text-slate-200">
                 Quick Actions
               </h3>
               <div className="space-y-2">
                 <button className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-gray-800">
                   <Zap
                     size={20}
-                    className="text-neutral-500 dark:text-neutral-400"
+                    className="text-neutral-500 dark:text-slate-400"
                   />
                   <span className="font-light">Random Problem</span>
                 </button>
                 <button className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-gray-800">
                   <BarChart3
                     size={20}
-                    className="text-neutral-500 dark:text-neutral-400"
+                    className="text-neutral-500 dark:text-slate-400"
                   />
                   <span className="font-light">Practice Contest</span>
                 </button>
               </div>
-            </div>
-            <div className="rounded-2xl border bg-white p-6 dark:bg-[#161b22] border-neutral-200/80 dark:border-[#30363d]">
-              <h3 className="mb-4 font-normal text-neutral-800 dark:text-neutral-200">
+            </div> */}
+            <div className="rounded-2xl border bg-white p-6 dark:bg-[#0e1013] border-neutral-200/80 dark:border-[#30363d]">
+              <h3 className="mb-4 font-normal text-neutral-800 dark:text-slate-200">
                 Recent Submissions
               </h3>
               <div className="space-y-4">
@@ -418,10 +418,10 @@ const Practice = () => {
                     className="flex items-center justify-between"
                   >
                     <div>
-                      <p className="text-sm font-normal text-neutral-700 dark:text-neutral-300">
+                      <p className="text-sm font-normal text-neutral-700 dark:text-slate-300">
                         {sub.problem}
                       </p>
-                      <p className="text-xs font-light text-neutral-400 dark:text-neutral-500">
+                      <p className="text-xs font-light text-neutral-400 dark:text-slate-500">
                         {sub.time}
                       </p>
                     </div>
@@ -438,8 +438,8 @@ const Practice = () => {
                 ))}
               </div>
             </div>
-            <div className="rounded-2xl border bg-white p-6 dark:bg-[#161b22] border-neutral-200/80 dark:border-[#30363d]">
-              <h3 className="mb-4 font-normal text-neutral-800 dark:text-neutral-200">
+            {/* <div className="rounded-2xl border bg-white p-6 dark:bg-[#0e1013] border-neutral-200/80 dark:border-[#30363d]">
+              <h3 className="mb-4 font-normal text-neutral-800 dark:text-slate-200">
                 Achievements
               </h3>
               <div className="space-y-4">
@@ -450,14 +450,14 @@ const Practice = () => {
                       <div className="text-sm font-medium text-neutral-900 dark:text-neutral-200">
                         {ach.title}
                       </div>
-                      <div className="text-xs font-light text-neutral-500 dark:text-neutral-400">
+                      <div className="text-xs font-light text-neutral-500 dark:text-slate-400">
                         {ach.desc}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </aside>
         </div>
       </div>

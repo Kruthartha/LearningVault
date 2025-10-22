@@ -9,8 +9,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// --- (Skeleton definitions are removed) ---
-
 // <-- 1. IMPORT the skeleton from its new file
 import { LearnPageSkeleton } from "./components/LearnPageSkeleton";
 
@@ -117,12 +115,11 @@ const StreakTracker = ({ streakData }) => {
                     : // Inactive day styles
                       "bg-neutral-100 text-neutral-400 dark:bg-gray-800 dark:text-gray-500"
                 }
-                ${
-                  // Add a ring to highlight today
-                  isToday
-                    ? "ring-2 ring-orange-300 dark:ring-orange-400 ring-offset-2 dark:ring-offset-[#0e1013]"
-                    : ""
-                }
+${
+  isToday
+    ? "ring-2 ring-orange-500 dark:ring-orange-400 ring-offset-2 dark:ring-offset-[#0e1013] animate-pulse"
+    : ""
+}
               `}
             >
               {day.label}
@@ -173,7 +170,7 @@ export default function LearnPage() {
     },
   ];
 
-  // --- Data fetching logic ---
+  // --- [MODIFIED] Data fetching logic ---
   useEffect(() => {
     const fetchAllData = async () => {
       const token = localStorage.getItem("accessToken");
@@ -186,26 +183,36 @@ export default function LearnPage() {
         // Simulate a 2-second load time as requested
         // await new Promise(resolve => setTimeout(resolve, 2000));
 
-        const [progressResponse, streakResponse] = await Promise.all([
-          fetch(`${API_URL}/user/progress`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${API_URL}/user/streak`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+        // 1. Make a single API call to the new /user/learn endpoint
+        const response = await fetch(`${API_URL}/user/learn`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        if (!progressResponse.ok) {
-          throw new Error(`HTTP error! status: ${progressResponse.status}`);
+        // 2. Check the response of the single call
+        if (!response.ok) {
+          let errorMsg = `HTTP error! status: ${response.status}`;
+          try {
+            // Try to get a more specific error message from the API
+            const errorData = await response.json();
+            errorMsg = errorData.message || errorMsg;
+          } catch (jsonError) {
+            // Body wasn't JSON or was unreadable, stick with the status code
+          }
+          throw new Error(errorMsg);
         }
-        if (!streakResponse.ok) {
-          throw new Error(`HTTP error! status: ${streakResponse.status}`);
-        }
 
-        const progressData = await progressResponse.json();
-        const streakResult = await streakResponse.json();
+        // 3. Get the combined JSON data
+        const allData = await response.json();
 
-        // This now correctly sets the state to the new API response
+        // 4. Extract the progress and streak data from the new structure
+        // These variable names match the old logic, so no other code
+        // needs to change.
+        const progressData = allData.progress;
+        const streakResult = allData.streak;
+
+        // --- Logic from here down is the same as before ---
+
+        // Set streak data first, so it appears even if progress is empty
         setStreakData(streakResult);
 
         const pathData = progressData[0];
@@ -213,7 +220,7 @@ export default function LearnPage() {
           setInProgress([]);
           // Set to null to trigger the "No learning progress" message
           setCurrentCourse(null);
-          return;
+          return; // 'finally' block will still run
         }
 
         setPathSlug(pathData.id);
@@ -246,7 +253,7 @@ export default function LearnPage() {
         if (!courseData) {
           setCurrentCourse(null);
           setInProgress([pathObject]); // Still show the path
-          return;
+          return; // 'finally' block will still run
         }
 
         const firstModule = courseData.modules?.[0];
@@ -272,6 +279,7 @@ export default function LearnPage() {
     };
     fetchAllData();
   }, [navigate]); // navigate dependency is fine, though not strictly needed for fetch
+  // --- [END MODIFIED] Data fetching logic ---
 
   // <-- 2. THIS LINE now works by using the imported component
   if (isLoading) return <LearnPageSkeleton />;
@@ -292,14 +300,68 @@ export default function LearnPage() {
 
   if (!currentCourse)
     return (
+      // Show streak tracker and recommendations even if no course is in progress
       <div
         className={`
-          p-10 text-center text-lg
+          text-neutral-800 dark:text-neutral-300
           transition-opacity duration-500 ease-in-out
           ${isVisible ? "opacity-100" : "opacity-0"}
         `}
       >
-        No learning progress found. Start a new course!
+        <div className="mx-auto max-w-7xl ">
+          <header className="mb-12">
+            <h1 className="text-4xl font-light tracking-tight text-neutral-900 dark:text-neutral-100 md:text-5xl">
+              Ready to get started?
+            </h1>
+            <p className="mt-2 text-lg font-light text-slate-500 dark:text-slate-400">
+              Explore our learning paths and courses to begin your journey.
+            </p>
+          </header>
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+            <main className="space-y-12 lg:col-span-2">
+              <section>
+                <h2 className="mb-4 text-2xl font-normal tracking-tight text-slate-900 dark:text-slate-100">
+                  Recommended for You
+                </h2>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {recommendations.map((item) => (
+                    <RecommendationCard key={item.id} item={item} />
+                  ))}
+                </div>
+              </section>
+            </main>
+            <aside className="space-y-8 lg:sticky lg:top-24">
+              <StreakTracker streakData={streakData} />
+              <div className="p-6 border rounded-2xl bg-white dark:bg-[#0e1013] border-neutral-200/80 dark:border-[#30363d]">
+                <h3 className="mb-4 font-normal text-slate-800 dark:text-slate-200">
+                  Explore
+                </h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => navigate("/dashboard/learn/courses")}
+                    className="flex w-full items-center gap-3 p-3 text-left transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-slate-800"
+                  >
+                    <BookOpen
+                      size={20}
+                      className="text-slate-500 dark:text-slate-400"
+                    />
+                    <span className="font-light">My Courses</span>
+                  </button>
+                  <button
+                    onClick={() => navigate("/dashboard/learn/paths")}
+                    className="flex w-full items-center gap-3 p-3 text-left transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-slate-800"
+                  >
+                    <Compass
+                      size={20}
+                      className="text-slate-500 dark:text-slate-400"
+                    />
+                    <span className="font-light">All Learning Paths</span>
+                  </button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
       </div>
     );
 

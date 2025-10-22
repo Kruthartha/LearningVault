@@ -49,9 +49,9 @@ const mockData = {
       id: 1,
       title: "Completed 'React Router'",
       date: "2 days ago",
-      icon: "🏆",
+      icon: "",
     },
-    { id: 2, title: "10-day streak!", date: "1 week ago", icon: "🔥" },
+    { id: 2, title: "10-day streak!", date: "1 week ago", icon: "" },
   ],
   techNews: [
     {
