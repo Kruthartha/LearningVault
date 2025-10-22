@@ -82,7 +82,13 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
+  // Drop triggers first
+  pgm.sql(`DROP TRIGGER IF EXISTS update_problems_updated_at ON problems;`);
+
+  // Then drop tables
   pgm.dropTable("user_problem_status");
   pgm.dropTable("problems");
+
+  // Finally, drop the function
   pgm.sql(`DROP FUNCTION IF EXISTS update_updated_at_column();`);
 };

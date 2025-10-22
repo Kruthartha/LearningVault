@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { pool } from "../config/db.js";
 import { sendMail } from "../utils/mail.js";
 
+
 // helpers
 const signAccess = (payload) =>
   jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {

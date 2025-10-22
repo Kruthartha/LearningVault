@@ -1,44 +1,47 @@
 import React, { useEffect, useRef, useState } from "react";
-import hljs from "highlight.js";
+import hljs from "highlight.js/lib/core"; // ✅ core only
+
+//  Import only the languages you need
+import javascript from "highlight.js/lib/languages/javascript";
+import python from "highlight.js/lib/languages/python";
+import html from "highlight.js/lib/languages/xml";
+import css from "highlight.js/lib/languages/css";
+
 import "highlight.js/styles/github-dark.min.css";
+
+// Register only required languages
+hljs.registerLanguage("javascript", javascript);
+hljs.registerLanguage("python", python);
+hljs.registerLanguage("html", html);
+hljs.registerLanguage("css", css);
 
 // --- Main Component ---
 const CodeBlock = ({ code, language = "javascript" }) => {
   const codeRef = useRef(null);
-  // State to manage the fade-in after highlighting
   const [isHighlighted, setIsHighlighted] = useState(false);
 
   useEffect(() => {
-    // Reset visibility when code changes
     setIsHighlighted(false);
 
     if (codeRef.current && code) {
-      // Run the highlighting
       hljs.highlightElement(codeRef.current);
 
-      // Set to visible after highlighting is done
-      // This small delay ensures the fade-in transition works
-      const timer = setTimeout(() => {
-        setIsHighlighted(true);
-      }, 50);
-
+      const timer = setTimeout(() => setIsHighlighted(true), 50);
       return () => clearTimeout(timer);
     }
   }, [code, language]);
 
-  // If no code is provided, render the skeleton
   if (!code) {
     return (
-      <pre className="overflow-x-auto text-sm bg-[#011627]">
+      <pre className="overflow-x-auto text-sm bg-[#011627] text-gray-400 p-4 rounded-md">
         Failed to fetch the Code
       </pre>
     );
   }
 
-  // Render the real code, but keep it invisible until highlighted
   return (
     <pre
-      className={`p-4 overflow-x-auto text-sm bg-[#0E1116] transition-opacity duration-300 ease-in-out ${
+      className={`p-4 overflow-x-auto text-sm bg-[#0E1116] text-gray-100 rounded-md transition-opacity duration-300 ease-in-out ${
         isHighlighted ? "opacity-100" : "opacity-0"
       }`}
     >
